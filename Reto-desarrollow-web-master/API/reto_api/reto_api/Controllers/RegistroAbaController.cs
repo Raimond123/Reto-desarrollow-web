@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using reto_api.Models;
 using reto_api.Dtos;
@@ -7,31 +7,31 @@ namespace reto_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RegistroAguaController : ControllerBase
+    public class RegistroAbaController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public RegistroAguaController(AppDbContext context)
+        public RegistroAbaController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/RegistroAgua
+        // GET: api/RegistroAba
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RegistroAgua>>> GetRegistros()
+        public async Task<ActionResult<IEnumerable<RegistroAba>>> GetRegistros()
         {
-            return await _context.RegistrosAgua
+            return await _context.RegistrosAba
                 .Include(r => r.UsuarioRegistro)
                 .Include(r => r.UsuarioAnalista)
                 .Include(r => r.UsuarioEvaluador)
                 .ToListAsync();
         }
 
-        // GET: api/RegistroAgua/5
+        // GET: api/RegistroAba/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<RegistroAgua>> GetRegistro(int id)
+        public async Task<ActionResult<RegistroAba>> GetRegistro(int id)
         {
-            var registro = await _context.RegistrosAgua
+            var registro = await _context.RegistrosAba
                 .Include(r => r.UsuarioRegistro)
                 .Include(r => r.UsuarioAnalista)
                 .Include(r => r.UsuarioEvaluador)
@@ -43,30 +43,29 @@ namespace reto_api.Controllers
             return registro;
         }
 
-        // POST: api/RegistroAgua
+        // POST: api/RegistroAba
         [HttpPost]
-        public async Task<ActionResult<RegistroAgua>> PostRegistro(RegistroAguaDTO dto)
+        public async Task<ActionResult<RegistroAba>> PostRegistro(RegistroAbaDTO dto)
         {
             var registro = MapDTOToEntity(dto);
 
-            _context.RegistrosAgua.Add(registro);
+            _context.RegistrosAba.Add(registro);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetRegistro), new { id = registro.Id }, registro);
         }
 
-        // PUT: api/RegistroAgua/5
+        // PUT: api/RegistroAba/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRegistro(int id, RegistroAguaDTO dto)
+        public async Task<IActionResult> PutRegistro(int id, RegistroAbaDTO dto)
         {
             if (id != dto.Id)
                 return BadRequest();
 
-            var registro = await _context.RegistrosAgua.FindAsync(id);
+            var registro = await _context.RegistrosAba.FindAsync(id);
             if (registro == null)
                 return NotFound();
 
-            // Actualizamos con el DTO
             UpdateEntityFromDTO(registro, dto);
 
             _context.Entry(registro).State = EntityState.Modified;
@@ -77,7 +76,7 @@ namespace reto_api.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.RegistrosAgua.Any(e => e.Id == id))
+                if (!_context.RegistrosAba.Any(e => e.Id == id))
                     return NotFound();
                 else
                     throw;
@@ -86,25 +85,92 @@ namespace reto_api.Controllers
             return NoContent();
         }
 
-        // 🔹 Helpers para mapear entre DTO y Entidad
-        private RegistroAgua MapDTOToEntity(RegistroAguaDTO dto)
+        // DELETE: api/RegistroAba/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteRegistro(int id)
         {
-            return new RegistroAgua
-            {
-                RegionSalud = dto.RegionSalud,
-                DptoArea = dto.DptoArea,
-                TomadaPor = dto.TomadaPor,
-                NumOficio = dto.NumOficio,
-                NumMuestra = dto.NumMuestra,
-                EnviadaPor = dto.EnviadaPor,
-                Muestra = dto.Muestra,
-                Direccion = dto.Direccion,
-                CondicionMuestra = dto.CondicionMuestra,
-                MotivoSolicitud = dto.MotivoSolicitud,
-                FechaToma = dto.FechaToma,
-                FechaRecepcion = dto.FechaRecepcion,
+            var registro = await _context.RegistrosAba.FindAsync(id);
+            if (registro == null)
+                return NotFound();
 
-                // Nuevos campos
+            _context.RegistrosAba.Remove(registro);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // PUT: api/RegistroAba/5/asignar
+        [HttpPut("{id}/asignar")]
+        public async Task<IActionResult> AsignarAnalista(int id, [FromBody] AsignarAnalistaDTO dto)
+        {
+            var registro = await _context.RegistrosAba.FindAsync(id);
+            if (registro == null)
+                return NotFound();
+
+            registro.UsuIdAnalista = dto.AnalistaId;
+            registro.Estado = "En Proceso";
+            
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        // PUT: api/RegistroAba/5/aprobar
+        [HttpPut("{id}/aprobar")]
+        public async Task<IActionResult> AprobarRegistro(int id)
+        {
+            var registro = await _context.RegistrosAba.FindAsync(id);
+            if (registro == null)
+                return NotFound();
+
+            registro.Estado = "Aprobado";
+            
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        // PUT: api/RegistroAba/5/rechazar
+        [HttpPut("{id}/rechazar")]
+        public async Task<IActionResult> RechazarRegistro(int id, [FromBody] RechazarRegistroDTO dto)
+        {
+            var registro = await _context.RegistrosAba.FindAsync(id);
+            if (registro == null)
+                return NotFound();
+
+            registro.Estado = "Rechazado";
+            registro.Observaciones = dto.Motivo;
+            
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        // PUT: api/RegistroAba/5/completar
+        [HttpPut("{id}/completar")]
+        public async Task<IActionResult> CompletarRegistro(int id)
+        {
+            var registro = await _context.RegistrosAba.FindAsync(id);
+            if (registro == null)
+                return NotFound();
+
+            registro.Estado = "Por Evaluar";
+            
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        // 🔹 Helpers para mapear DTO <-> Entidad
+        private RegistroAba MapDTOToEntity(RegistroAbaDTO dto)
+        {
+            return new RegistroAba
+            {
+                NumOficio = dto.NumOficio,
+                FechaRecibo = dto.FechaRecibo,
+                NombreSolicitante = dto.NombreSolicitante,
+                MotivoSolicitud = dto.MotivoSolicitud,
+                TipoMuestra = dto.TipoMuestra,
+                CondicionRecepcion = dto.CondicionRecepcion,
+                NumMuestra = dto.NumMuestra,
+                NumLote = dto.NumLote,
+                FechaEntrega = dto.FechaEntrega,
                 Color = dto.Color,
                 Olor = dto.Olor,
                 Sabor = dto.Sabor,
@@ -134,39 +200,26 @@ namespace reto_api.Controllers
                 TiempoCoccion = dto.TiempoCoccion,
                 OtrasDeterminaciones = dto.OtrasDeterminaciones,
                 Referencia = dto.Referencia,
-
-                TemperaturaAmbiente = dto.TemperaturaAmbiente,
-                FechaReporte = dto.FechaReporte,
-                MicrooroAerobios = dto.MicrooroAerobios,
-                PseudomonasSPP = dto.PseudomonasSPP,
-                MetodologiaReferencia = dto.MetodologiaReferencia,
                 Observaciones = dto.Observaciones,
-
                 AptoConsumo = dto.AptoConsumo,
                 Estado = dto.Estado,
-
                 UsuIdRegistro = dto.UsuIdRegistro,
-                UsuIdAnalista = dto.UsuIdAnalista,
+                UsuIdAnalista = dto.UsuIdAnalista ,
                 UsuIdEvaluador = dto.UsuIdEvaluador
             };
         }
 
-        private void UpdateEntityFromDTO(RegistroAgua entity, RegistroAguaDTO dto)
+        private void UpdateEntityFromDTO(RegistroAba entity, RegistroAbaDTO dto)
         {
-            entity.RegionSalud = dto.RegionSalud;
-            entity.DptoArea = dto.DptoArea;
-            entity.TomadaPor = dto.TomadaPor;
             entity.NumOficio = dto.NumOficio;
-            entity.NumMuestra = dto.NumMuestra;
-            entity.EnviadaPor = dto.EnviadaPor;
-            entity.Muestra = dto.Muestra;
-            entity.Direccion = dto.Direccion;
-            entity.CondicionMuestra = dto.CondicionMuestra;
+            entity.FechaRecibo = dto.FechaRecibo;
+            entity.NombreSolicitante = dto.NombreSolicitante;
             entity.MotivoSolicitud = dto.MotivoSolicitud;
-            entity.FechaToma = dto.FechaToma;
-            entity.FechaRecepcion = dto.FechaRecepcion;
-
-            // Nuevos campos
+            entity.TipoMuestra = dto.TipoMuestra;
+            entity.CondicionRecepcion = dto.CondicionRecepcion;
+            entity.NumMuestra = dto.NumMuestra;
+            entity.NumLote = dto.NumLote;
+            entity.FechaEntrega = dto.FechaEntrega;
             entity.Color = dto.Color;
             entity.Olor = dto.Olor;
             entity.Sabor = dto.Sabor;
@@ -196,20 +249,12 @@ namespace reto_api.Controllers
             entity.TiempoCoccion = dto.TiempoCoccion;
             entity.OtrasDeterminaciones = dto.OtrasDeterminaciones;
             entity.Referencia = dto.Referencia;
-
-            entity.TemperaturaAmbiente = dto.TemperaturaAmbiente;
-            entity.FechaReporte = dto.FechaReporte;
-            entity.MicrooroAerobios = dto.MicrooroAerobios;
-            entity.PseudomonasSPP = dto.PseudomonasSPP;
-            entity.MetodologiaReferencia = dto.MetodologiaReferencia;
             entity.Observaciones = dto.Observaciones;
-
             entity.AptoConsumo = dto.AptoConsumo;
             entity.Estado = dto.Estado;
-
             entity.UsuIdRegistro = dto.UsuIdRegistro;
             entity.UsuIdAnalista = dto.UsuIdAnalista;
-            entity.UsuIdEvaluador = dto.UsuIdEvaluador;
+            entity.UsuIdEvaluador = dto.UsuIdEvaluador ;
         }
     }
 }

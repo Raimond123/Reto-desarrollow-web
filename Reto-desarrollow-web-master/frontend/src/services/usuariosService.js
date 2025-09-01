@@ -58,5 +58,30 @@ export const usuariosService = {
     } catch (error) {
       throw new Error(`Error al eliminar usuario: ${error.message}`);
     }
+  },
+
+  // Login de usuario
+  login: async (correo, contrasena) => {
+    try {
+      const response = await api.post('/usuarios/login', {
+        correo: correo,
+        contrasena: contrasena
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(`Error al iniciar sesión: ${error.message}`);
+    }
+  },
+
+  // Logout de usuario
+  logout: async (usuarioId) => {
+    try {
+      const response = await api.post('/usuarios/logout', {
+        usuarioId: usuarioId
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(`Error al cerrar sesión: ${error.message}`);
+    }
   }
 };

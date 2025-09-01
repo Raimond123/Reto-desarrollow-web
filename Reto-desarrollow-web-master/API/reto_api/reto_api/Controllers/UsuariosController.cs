@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using reto_api.Models;
+using reto_api.DTOs;
+using System.Security.Cryptography;
+using System.Text;
 //using UsuariosApi.Data;
 //using UsuariosApi.Models;
 
-namespace UsuariosApi.Controllers
+namespace reto_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -56,6 +59,75 @@ namespace UsuariosApi.Controllers
             _context.Usuarios.Remove(user);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        // POST: api/usuarios/login
+        [HttpPost("login")]
+        public async Task<ActionResult<LoginResponseDTO>> Login(LoginRequestDTO loginRequest)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Buscar usuario por correo
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.usu_correo == loginRequest.Correo);
+
+            if (usuario == null)
+                return Unauthorized(new { message = "Credenciales inválidas" });
+
+            // Verificar contraseña (en un escenario real, deberías usar hash)
+            if (usuario.usu_contrasena != loginRequest.Contrasena)
+                return Unauthorized(new { message = "Credenciales inválidas" });
+
+            // Generar token simple (en producción usar JWT)
+            var token = GenerateSimpleToken(usuario.usu_id);
+
+            var response = new LoginResponseDTO
+            {
+                UsuarioId = usuario.usu_id,
+                Nombre = usuario.usu_nombre,
+                Correo = usuario.usu_correo,
+                Rol = usuario.usu_rol,
+                Token = token,
+                FechaLogin = DateTime.Now
+            };
+
+            return Ok(response);
+        }
+
+        // POST: api/usuarios/logout
+        [HttpPost("logout")]
+        public async Task<ActionResult<LogoutResponseDTO>> Logout(LogoutRequestDTO logoutRequest)
+        {
+            // Verificar que el usuario existe
+            var usuario = await _context.Usuarios.FindAsync(logoutRequest.UsuarioId);
+            
+            if (usuario == null)
+                return NotFound(new { message = "Usuario no encontrado" });
+
+            // En un escenario real, aquí invalidarías el token JWT
+            // Por ahora, simplemente retornamos una respuesta exitosa
+            var response = new LogoutResponseDTO
+            {
+                Success = true,
+                Message = "Logout exitoso",
+                FechaLogout = DateTime.Now
+            };
+
+            return Ok(response);
+        }
+
+        // Método auxiliar para generar token simple
+        private string GenerateSimpleToken(int userId)
+        {
+            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var tokenData = $"{userId}:{timestamp}";
+            
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(tokenData));
+                return Convert.ToBase64String(hashedBytes);
+            }
         }
     }
 }

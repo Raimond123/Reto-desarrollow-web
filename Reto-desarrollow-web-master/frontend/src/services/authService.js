@@ -13,7 +13,7 @@ export const authService = {
   // Login de usuario
   login: async (correo, contrasena) => {
     try {
-      const response = await api.post('/auth/login', {
+      const response = await api.post('/usuarios/login', {
         correo,
         contrasena
       });
@@ -29,7 +29,7 @@ export const authService = {
   // Logout de usuario
   logout: async () => {
     try {
-      await api.post('/auth/logout');
+      await api.post('/usuarios/logout');
       return { success: true };
     } catch (error) {
       // Incluso si falla el logout del servidor, consideramos exitoso

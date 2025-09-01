@@ -1,11 +1,68 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import FormularioRegistroAgua from './FormularioRegistroAgua';
+import FormularioRegistroAba from './FormularioRegistroAba';
 
 const RegistroDashboard = () => {
   const { user, logout } = useAuth();
+  const [formularioSeleccionado, setFormularioSeleccionado] = useState(null);
 
   const handleLogout = () => {
     logout();
+  };
+
+  const seleccionarFormulario = (tipo) => {
+    setFormularioSeleccionado(tipo);
+  };
+
+  const volverASeleccion = () => {
+    setFormularioSeleccionado(null);
+  };
+
+  const renderSeleccionFormularios = () => (
+    <div className="formularios-selection">
+      <div className="selection-header">
+        <h2>Seleccionar Tipo de Registro</h2>
+        <p>Elige el formulario que necesitas completar:</p>
+      </div>
+      
+      <div className="formularios-grid">
+        <div className="formulario-card" onClick={() => seleccionarFormulario('agua')}>
+          <div className="card-icon">💧</div>
+          <h3>Registro de Agua</h3>
+          <p>Análisis y registro de muestras de agua</p>
+          <ul>
+            <li>Análisis microbiológico</li>
+            <li>Parámetros físico-químicos</li>
+            <li>Control de calidad</li>
+          </ul>
+          <button className="btn btn-primary">Seleccionar</button>
+        </div>
+
+        <div className="formulario-card" onClick={() => seleccionarFormulario('aba')}>
+          <div className="card-icon">🍽️</div>
+          <h3>Registro ABA</h3>
+          <p>Análisis de alimentos, bebidas y afines</p>
+          <ul>
+            <li>Análisis nutricional</li>
+            <li>Control de calidad</li>
+            <li>Parámetros organolépticos</li>
+          </ul>
+          <button className="btn btn-primary">Seleccionar</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderFormulario = () => {
+    switch (formularioSeleccionado) {
+      case 'agua':
+        return <FormularioRegistroAgua onVolver={volverASeleccion} />;
+      case 'aba':
+        return <FormularioRegistroAba onVolver={volverASeleccion} />;
+      default:
+        return renderSeleccionFormularios();
+    }
   };
 
   return (
@@ -27,15 +84,8 @@ const RegistroDashboard = () => {
         </div>
       </div>
 
-      <div className="card">
-        <h2>Funcionalidades de Registro</h2>
-        <p>Aquí se implementarán las funcionalidades específicas para el rol de Registro:</p>
-        <ul>
-          <li>Registro de documentos</li>
-          <li>Control de archivos</li>
-          <li>Gestión de expedientes</li>
-          <li>Seguimiento de procesos</li>
-        </ul>
+      <div className="dashboard-content">
+        {renderFormulario()}
       </div>
     </div>
   );
