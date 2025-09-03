@@ -29,29 +29,7 @@ const FormularioRegistroAba = ({ onVolver }) => {
     pesoNeto: '',
     fechaVencimiento: '',
     
-    // Parámetros físico-químicos
-    acidez: '',
-    cloroResidual: '',
-    cenizas: '',
-    cumarina: '',
-    cloruro: '',
-    densidad: '',
-    dureza: '',
-    extractoSeco: '',
-    fecula: '',
-    gradoAlcoholico: '',
-    humedad: '',
-    indiceRefaccion: '',
-    indiceAcidez: '',
-    indiceRancidez: '',
-    materiaGrasaCualit: '',
-    materiaGrasaCuantit: '',
-    ph: '',
-    pruebaEber: '',
-    solidosTotales: '',
-    tiempoCoccion: '',
-    otrasDeterminaciones: '',
-    referencia: '',
+    // Solo campos necesarios para el backend
     observaciones: '',
     aptoConsumo: false,
     estado: 'Por Asignar'
@@ -72,12 +50,51 @@ const FormularioRegistroAba = ({ onVolver }) => {
     setSuccess('');
 
     try {
+      // Obtener ID del usuario con múltiples fallbacks
+      let userId = user?.UsuarioId || user?.usu_id || user?.usuarioId;
+      
+      // Si no se encuentra en el objeto user, intentar localStorage
+      if (!userId) {
+        try {
+          const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
+          userId = savedUser.UsuarioId || savedUser.usu_id || savedUser.usuarioId;
+        } catch (error) {
+          console.error('Error parsing localStorage user:', error);
+        }
+      }
+      
+      // Como último recurso, usar ID 6 que corresponde a Pedro Registro
+      if (!userId) {
+        console.warn('No se pudo obtener ID del usuario, usando ID por defecto 6 (Pedro Registro)');
+        userId = 6;
+      }
+
       const registroData = {
-        ...formData,
-        usuIdRegistro: user.usuarioId || 1
+        numOficio: formData.numOficio,
+        fechaRecibo: formData.fechaRecibo || null,
+        nombreSolicitante: formData.nombreSolicitante,
+        motivoSolicitud: formData.motivoSolicitud,
+        tipoMuestra: formData.tipoMuestra,
+        condicionRecepcion: formData.condicionRecepcion,
+        numMuestra: formData.numMuestra,
+        numLote: formData.numLote,
+        fechaEntrega: formData.fechaEntrega || null,
+        color: formData.color,
+        olor: formData.olor,
+        sabor: formData.sabor,
+        aspecto: formData.aspecto,
+        textura: formData.textura,
+        pesoNeto: formData.pesoNeto ? parseFloat(formData.pesoNeto) : null,
+        fechaVencimiento: formData.fechaVencimiento || null,
+        observaciones: formData.observaciones,
+        aptoConsumo: formData.aptoConsumo,
+        estado: 'Por Asignar',
+        usuIdRegistro: userId
       };
 
+      console.log('Intentando guardar registro ABA...');
       await registroService.guardarRegistroAba(registroData);
+      console.log('Registro ABA guardado exitosamente');
       setSuccess('Registro ABA guardado exitosamente y enviado al evaluador');
       
       // Limpiar formulario después de 2 segundos
@@ -99,28 +116,6 @@ const FormularioRegistroAba = ({ onVolver }) => {
           textura: '',
           pesoNeto: '',
           fechaVencimiento: '',
-          acidez: '',
-          cloroResidual: '',
-          cenizas: '',
-          cumarina: '',
-          cloruro: '',
-          densidad: '',
-          dureza: '',
-          extractoSeco: '',
-          fecula: '',
-          gradoAlcoholico: '',
-          humedad: '',
-          indiceRefaccion: '',
-          indiceAcidez: '',
-          indiceRancidez: '',
-          materiaGrasaCualit: '',
-          materiaGrasaCuantit: '',
-          ph: '',
-          pruebaEber: '',
-          solidosTotales: '',
-          tiempoCoccion: '',
-          otrasDeterminaciones: '',
-          referencia: '',
           observaciones: '',
           aptoConsumo: false,
           estado: 'Por Asignar'
@@ -355,228 +350,10 @@ const FormularioRegistroAba = ({ onVolver }) => {
           </div>
         </div>
 
-        {/* Parámetros Físico-Químicos */}
+        {/* Observaciones y Estado Final */}
         <div className="form-section">
-          <h3>Parámetros Físico-Químicos</h3>
+          <h3>Observaciones</h3>
           <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="acidez">Acidez:</label>
-              <input
-                type="number"
-                step="0.01"
-                id="acidez"
-                name="acidez"
-                value={formData.acidez}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="ph">pH:</label>
-              <input
-                type="number"
-                step="0.01"
-                id="ph"
-                name="ph"
-                value={formData.ph}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="humedad">Humedad:</label>
-              <input
-                type="number"
-                step="0.01"
-                id="humedad"
-                name="humedad"
-                value={formData.humedad}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="cenizas">Cenizas:</label>
-              <input
-                type="number"
-                step="0.01"
-                id="cenizas"
-                name="cenizas"
-                value={formData.cenizas}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="densidad">Densidad:</label>
-              <input
-                type="number"
-                step="0.001"
-                id="densidad"
-                name="densidad"
-                value={formData.densidad}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="gradoAlcoholico">Grado Alcohólico:</label>
-              <input
-                type="number"
-                step="0.01"
-                id="gradoAlcoholico"
-                name="gradoAlcoholico"
-                value={formData.gradoAlcoholico}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="solidosTotales">Sólidos Totales:</label>
-              <input
-                type="number"
-                step="0.01"
-                id="solidosTotales"
-                name="solidosTotales"
-                value={formData.solidosTotales}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="materiaGrasaCuantit">Materia Grasa (Cuantitativo):</label>
-              <input
-                type="number"
-                step="0.01"
-                id="materiaGrasaCuantit"
-                name="materiaGrasaCuantit"
-                value={formData.materiaGrasaCuantit}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Otros Parámetros */}
-        <div className="form-section">
-          <h3>Otros Parámetros</h3>
-          <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="materiaGrasaCualit">Materia Grasa (Cualitativo):</label>
-              <input
-                type="text"
-                id="materiaGrasaCualit"
-                name="materiaGrasaCualit"
-                value={formData.materiaGrasaCualit}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="dureza">Dureza:</label>
-              <input
-                type="text"
-                id="dureza"
-                name="dureza"
-                value={formData.dureza}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="extractoSeco">Extracto Seco:</label>
-              <input
-                type="text"
-                id="extractoSeco"
-                name="extractoSeco"
-                value={formData.extractoSeco}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="fecula">Fécula:</label>
-              <input
-                type="text"
-                id="fecula"
-                name="fecula"
-                value={formData.fecula}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="cumarina">Cumarina:</label>
-              <input
-                type="text"
-                id="cumarina"
-                name="cumarina"
-                value={formData.cumarina}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="pruebaEber">Prueba Eber:</label>
-              <input
-                type="text"
-                id="pruebaEber"
-                name="pruebaEber"
-                value={formData.pruebaEber}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="tiempoCoccion">Tiempo de Cocción:</label>
-              <input
-                type="text"
-                id="tiempoCoccion"
-                name="tiempoCoccion"
-                value={formData.tiempoCoccion}
-                onChange={handleChange}
-                className="form-control"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="otrasDeterminaciones">Otras Determinaciones:</label>
-              <textarea
-                id="otrasDeterminaciones"
-                name="otrasDeterminaciones"
-                value={formData.otrasDeterminaciones}
-                onChange={handleChange}
-                className="form-control"
-                rows="3"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="referencia">Referencia:</label>
-              <textarea
-                id="referencia"
-                name="referencia"
-                value={formData.referencia}
-                onChange={handleChange}
-                className="form-control"
-                rows="2"
-              />
-            </div>
-
             <div className="form-group">
               <label htmlFor="observaciones">Observaciones:</label>
               <textarea

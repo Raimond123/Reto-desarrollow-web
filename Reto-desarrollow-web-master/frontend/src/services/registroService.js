@@ -30,16 +30,21 @@ export const registroService = {
     }
   },
 
-  // Guardar registro ABA
+  // Función para guardar registro ABA
   guardarRegistroAba: async (registroData) => {
     try {
+      console.log('URL completa:', `${API_BASE_URL}/RegistroAba`);
+      console.log('Datos enviados al servidor ABA:', registroData);
       const response = await api.post('/RegistroAba', registroData);
       return response.data;
     } catch (error) {
-      if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+      console.error('Error al guardar registro ABA:', error.response?.data || error.message);
+      console.error('Status:', error.response?.status);
+      console.error('URL intentada:', error.config?.url);
+      if (error.response?.status === 400) {
+        console.error('Error 400 - Datos inválidos:', error.response.data);
       }
-      throw new Error(`Error al guardar registro ABA: ${error.message}`);
+      throw new Error(error.response?.data?.message || 'Error al guardar el registro ABA');
     }
   },
 

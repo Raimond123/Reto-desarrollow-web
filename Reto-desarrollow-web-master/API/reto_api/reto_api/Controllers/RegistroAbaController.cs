@@ -47,12 +47,23 @@ namespace reto_api.Controllers
         [HttpPost]
         public async Task<ActionResult<RegistroAba>> PostRegistro(RegistroAbaDTO dto)
         {
-            var registro = MapDTOToEntity(dto);
+            try
+            {
+                var registro = MapDTOToEntity(dto);
 
-            _context.RegistrosAba.Add(registro);
-            await _context.SaveChangesAsync();
+                _context.RegistrosAba.Add(registro);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetRegistro), new { id = registro.Id }, registro);
+                return CreatedAtAction(nameof(GetRegistro), new { id = registro.Id }, registro);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { 
+                    message = "Error al guardar el registro ABA", 
+                    details = ex.Message,
+                    innerException = ex.InnerException?.Message
+                });
+            }
         }
 
         // PUT: api/RegistroAba/5
