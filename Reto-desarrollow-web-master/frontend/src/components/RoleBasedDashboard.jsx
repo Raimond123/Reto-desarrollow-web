@@ -8,7 +8,19 @@ const RoleBasedDashboard = () => {
   const { user } = useAuth();
 
   const renderDashboard = () => {
-    switch (user?.rol) {
+    if(user?.rol == null){
+      return (
+        <div className="container">
+            <div className="error">
+              Este usuario no tiene un rol asignado 😠
+            </div>
+        </div>
+      );
+    }
+
+    let stringRol = String(user?.rol)
+
+     switch (stringRol.toLowerCase()) {
       case 'evaluador':
         return <EvaluadorDashboard />;
       case 'analista':
