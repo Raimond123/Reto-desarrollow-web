@@ -94,7 +94,7 @@ namespace reto_api.Controllers
                     throw;
             }
 
-            return NoContent();
+            return Ok();
         }
 
         // PUT: api/RegistroAgua/5/asignar

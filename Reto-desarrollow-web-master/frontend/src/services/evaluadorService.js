@@ -50,7 +50,16 @@ export const evaluadorService = {
       });
       
       const usuarios = await response.json();
-      return usuarios.filter(u => u.rol === 'Analista');
+      console.log("📌 Respuesta cruda de /usuarios:", usuarios);
+
+      // Normalizar para aceptar rol y usu_rol
+      return usuarios
+        .filter(u => (u.usu_rol || u.rol || '').toLowerCase() === 'analista')
+        .map(u => ({
+          usuarioId: u.usu_id || u.id,
+          nombre: u.usu_nombre || u.nombre,
+          correo: u.usu_correo || u.correo
+        }));
     } catch (error) {
       console.error('Error al obtener analistas:', error);
       throw error;
@@ -67,25 +76,35 @@ export const evaluadorService = {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ analistaId })
+        body: JSON.stringify({ analistaId: parseInt(analistaId, 10) }) // 👈 importante! el DTO espera AnalistaId
       });
 
       if (!response.ok) {
-        throw new Error('Error al asignar analista');
+        const errorText = await response.text();
+        console.error("❌ Backend devolvió error:", errorText);
+        throw new Error(`Error al asignar analista -> ${errorText}`);
       }
 
-      return await response.json();
+      // ✅ si no hay contenido, devolvemos un objeto básico
+      if (response.status === 204) {
+        return { success: true };
+      }
+
+      try {
+        return await response.json();
+      } catch {
+        return { success: true };
+      }
     } catch (error) {
       console.error('Error al asignar analista:', error);
       throw error;
     }
   },
-
   // Aprobar registro
   async aprobarRegistro(registroId, tipoRegistro) {
     try {
       const endpoint = tipoRegistro === 'agua' ? 'registroagua' : 'registroaba';
-      const response = await fetch(`${API_BASE_URL}/${endpoint}/${registroId}/aprobar`, {
+      const response  = await fetch(`${API_BASE_URL}/${endpoint}/${registroId}/aprobar`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,

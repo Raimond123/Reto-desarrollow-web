@@ -11,6 +11,7 @@ const EvaluadorDashboard = () => {
     porEvaluar: []
   });
   const [analistas, setAnalistas] = useState([]);
+  const [selecciones, setSelecciones] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -34,10 +35,11 @@ const EvaluadorDashboard = () => {
     }
   };
 
-  const asignarAnalista = async (registroId, tipoRegistro, analistaId) => {
+  // ✅ recibir también el registro completo
+  const asignarAnalista = async (registroId, tipoRegistro, analistaId, registroCompleto) => {
     try {
-      await evaluadorService.asignarAnalista(registroId, tipoRegistro, analistaId);
-      await cargarDatos(); // Recargar datos
+      await evaluadorService.asignarAnalista(registroId, tipoRegistro, analistaId, registroCompleto);
+      await cargarDatos(); // recarga dashboard
     } catch (err) {
       setError('Error al asignar analista: ' + err.message);
     }
@@ -46,7 +48,7 @@ const EvaluadorDashboard = () => {
   const aprobarRegistro = async (registroId, tipoRegistro) => {
     try {
       await evaluadorService.aprobarRegistro(registroId, tipoRegistro);
-      await cargarDatos(); // Recargar datos
+      await cargarDatos();
     } catch (err) {
       setError('Error al aprobar registro: ' + err.message);
     }
@@ -55,7 +57,7 @@ const EvaluadorDashboard = () => {
   const rechazarRegistro = async (registroId, tipoRegistro, motivo) => {
     try {
       await evaluadorService.rechazarRegistro(registroId, tipoRegistro, motivo);
-      await cargarDatos(); // Recargar datos
+      await cargarDatos();
     } catch (err) {
       setError('Error al rechazar registro: ' + err.message);
     }
@@ -81,8 +83,11 @@ const EvaluadorDashboard = () => {
         {activeTab === 'porAsignar' && (
           <div className="asignar-section">
             <select 
-              onChange={(e) => asignarAnalista(registro.id, tipo, e.target.value)}
-              defaultValue=""
+              value={selecciones[registro.id] || ""}
+              onChange={(e) => setSelecciones(prev => ({
+                ...prev,
+                [registro.id]: e.target.value
+              }))}
             >
               <option value="">Seleccionar Analista</option>
               {analistas.map(analista => (
@@ -91,6 +96,19 @@ const EvaluadorDashboard = () => {
                 </option>
               ))}
             </select>
+
+            <button 
+              className="btn btn-primary"
+              disabled={!selecciones[registro.id]} 
+              onClick={() => asignarAnalista(
+                registro.id, 
+                registro.tipo, 
+                selecciones[registro.id], 
+                registro // 👈 enviamos el registro completo
+              )}
+            >
+              Confirmar
+            </button>
           </div>
         )}
 
