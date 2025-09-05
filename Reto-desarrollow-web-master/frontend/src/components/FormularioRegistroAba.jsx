@@ -51,8 +51,8 @@ const FormularioRegistroAba = ({ onVolver }) => {
 
     try {
       // Obtener ID del usuario con múltiples fallbacks
-      let userId = user?.UsuarioId || user?.usu_id || user?.usuarioId;
-      
+      // let userId = user?.UsuarioId || user?.usu_id || user?.usuarioId;
+      let userId = user?.id
       // Si no se encuentra en el objeto user, intentar localStorage
       if (!userId) {
         try {

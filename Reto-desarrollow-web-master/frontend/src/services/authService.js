@@ -17,6 +17,7 @@ export const authService = {
         correo,
         contrasena
       });
+      // console.log(response.data)
       return response.data;
     } catch (error) {
       if (error.response?.data?.message) {

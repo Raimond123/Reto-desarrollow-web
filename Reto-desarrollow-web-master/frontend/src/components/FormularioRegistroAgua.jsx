@@ -52,12 +52,15 @@ const FormularioRegistroAgua = ({ onVolver }) => {
     try {
       console.log('Usuario actual completo:', user);
       console.log('Propiedades del usuario:', Object.keys(user || {}));
-      console.log('UsuarioId:', user?.UsuarioId);
-      console.log('usu_id:', user?.usu_id);
-      console.log('usuarioId:', user?.usuarioId);
+      // console.log('UsuarioId:', user?.UsuarioId);
+      // console.log('usu_id:', user?.usu_id);
+      // console.log('usuarioId:', user?.usuarioId);
+      console.log('usuarioId:', user?.id);
+
       
       // Obtener ID del usuario con múltiples fallbacks
-      let userId = user?.UsuarioId || user?.usu_id || user?.usuarioId;
+      // let userId = user?.UsuarioId || user?.usu_id || user?.usuarioId;
+      let userId = user?.id
       
       // Si no se encuentra en el objeto user, intentar localStorage
       if (!userId) {

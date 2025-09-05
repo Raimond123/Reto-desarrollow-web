@@ -29,12 +29,14 @@ const Login = () => {
       const response = await authService.login(formData.correo, formData.contrasena);
       
       const userData = {
+        id: response.usuarioId,            // 👈 ahora se incluye el id
         nombre: response.nombre,
         correo: response.correo,
         rol: response.rol
       };
+      console.log(userData);
 
-      login(userData, response.token);
+      login(userData, response.token); // cache/context guarda todo
     } catch (err) {
       setError(err.message);
     } finally {
