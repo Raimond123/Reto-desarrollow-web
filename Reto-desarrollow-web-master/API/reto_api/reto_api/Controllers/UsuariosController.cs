@@ -40,13 +40,39 @@ namespace reto_api.Controllers
 
         // PUT: api/usuarios/5
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Put(int id, Usuario usuario)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateUsuarioDTO updateDto)
         {
-            if (id != usuario.usu_id) return BadRequest();
+            var existingUser = await _context.Usuarios.FindAsync(id);
+            if (existingUser == null) return NotFound();
 
-            _context.Entry(usuario).State = EntityState.Modified;
+            // Actualizar solo los campos proporcionados
+            if (!string.IsNullOrEmpty(updateDto.usu_nombre))
+                existingUser.usu_nombre = updateDto.usu_nombre;
+            
+            if (!string.IsNullOrEmpty(updateDto.usu_correo))
+                existingUser.usu_correo = updateDto.usu_correo;
+            
+            if (!string.IsNullOrEmpty(updateDto.usu_rol))
+                existingUser.usu_rol = updateDto.usu_rol;
+            
+            // Solo actualizar contraseña si se proporciona una nueva
+            if (!string.IsNullOrEmpty(updateDto.usu_contrasena))
+                existingUser.usu_contrasena = updateDto.usu_contrasena;
+
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        // PUT: api/usuarios/5/toggle-active
+        [HttpPut("{id:int}/toggle-active")]
+        public async Task<IActionResult> ToggleActive(int id, [FromBody] ToggleActiveDTO dto)
+        {
+            var user = await _context.Usuarios.FindAsync(id);
+            if (user is null) return NotFound();
+
+            user.usu_activo = dto.Activo;
+            await _context.SaveChangesAsync();
+            return Ok(new { success = true, activo = user.usu_activo });
         }
 
         // DELETE: api/usuarios/5
@@ -74,6 +100,10 @@ namespace reto_api.Controllers
 
             if (usuario == null)
                 return Unauthorized(new { message = "Credenciales inválidas" });
+
+            // Verificar si el usuario está activo
+            if (!usuario.usu_activo)
+                return Unauthorized(new { message = "Usuario desactivado. Contacte al administrador." });
 
             // Verificar contraseña (en un escenario real, deberías usar hash)
             if (usuario.usu_contrasena != loginRequest.Contrasena)

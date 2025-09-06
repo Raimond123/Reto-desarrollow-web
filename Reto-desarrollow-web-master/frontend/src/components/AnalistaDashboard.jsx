@@ -15,9 +15,21 @@ const AnalistaDashboard = () => {
   const cargarRegistrosAsignados = async () => {
     setLoading(true);
     try {
-      const registros = await analistaService.obtenerRegistrosAsignados(user.usuarioId);
+      console.log('🔍 Usuario completo:', JSON.stringify(user, null, 2));
+      
+      // Buscar el ID en diferentes propiedades posibles
+      const analistaId = user?.usuarioId || user?.usu_id || user?.id || user?.userId;
+      
+      console.log('🔍 ID encontrado:', analistaId);
+      
+      if (!analistaId) {
+        throw new Error('No se pudo obtener el ID del usuario analista');
+      }
+      
+      const registros = await analistaService.obtenerRegistrosAsignados(analistaId);
       setRegistrosAsignados(registros);
     } catch (err) {
+      console.error('❌ Error completo:', err);
       setError('Error al cargar registros: ' + err.message);
     } finally {
       setLoading(false);
@@ -50,19 +62,19 @@ const AnalistaDashboard = () => {
 
       <div className="registro-actions">
         <button 
+          className="btn btn-primary"
+          onClick={() => {
+            // TODO: Implementar análisis completo
+            alert('Función de análisis - Por implementar');
+          }}
+        >
+          🔬 Analizar
+        </button>
+        <button 
           className="btn btn-success"
           onClick={() => completarRegistro(registro.id, registro.tipo)}
         >
           ✅ Marcar como Completado
-        </button>
-        <button 
-          className="btn btn-info"
-          onClick={() => {
-            // TODO: Implementar vista detallada del registro
-            alert('Vista detallada - Por implementar');
-          }}
-        >
-          👁️ Ver Detalles
         </button>
       </div>
     </div>

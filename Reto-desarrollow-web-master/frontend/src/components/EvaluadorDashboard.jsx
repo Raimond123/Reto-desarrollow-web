@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { evaluadorService } from '../services/evaluadorService';
+import UsuariosCRUD from './UsuariosCRUD';
 
 const EvaluadorDashboard = () => {
   const { user, logout } = useAuth();
@@ -14,6 +15,7 @@ const EvaluadorDashboard = () => {
   const [selecciones, setSelecciones] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showUsuarios, setShowUsuarios] = useState(false);
 
   useEffect(() => {
     cargarDatos();
@@ -35,11 +37,10 @@ const EvaluadorDashboard = () => {
     }
   };
 
-  // ✅ recibir también el registro completo
   const asignarAnalista = async (registroId, tipoRegistro, analistaId, registroCompleto) => {
     try {
       await evaluadorService.asignarAnalista(registroId, tipoRegistro, analistaId, registroCompleto);
-      await cargarDatos(); // recarga dashboard
+      await cargarDatos();
     } catch (err) {
       setError('Error al asignar analista: ' + err.message);
     }
@@ -104,7 +105,7 @@ const EvaluadorDashboard = () => {
                 registro.id, 
                 registro.tipo, 
                 selecciones[registro.id], 
-                registro // 👈 enviamos el registro completo
+                registro
               )}
             >
               Confirmar
@@ -148,80 +149,94 @@ const EvaluadorDashboard = () => {
       <div className="header">
         <h1>Dashboard Evaluador</h1>
         <p>Bienvenido, {user.nombre}</p>
-        <button className="btn btn-danger" onClick={logout}>
-          Cerrar Sesión
-        </button>
+        <div className="header-actions">
+          <button 
+            className={`btn ${showUsuarios ? 'btn-secondary' : 'btn-info'}`}
+            onClick={() => setShowUsuarios(!showUsuarios)}
+          >
+            {showUsuarios ? '📊 Ver Dashboard' : '👥 Gestionar Usuarios'}
+          </button>
+          <button className="btn btn-danger" onClick={logout}>
+            Cerrar Sesión
+          </button>
+        </div>
       </div>
 
       {error && <div className="error">{error}</div>}
 
-      <div className="evaluador-tabs">
-        <button 
-          className={`tab-btn ${activeTab === 'porAsignar' ? 'active' : ''}`}
-          onClick={() => setActiveTab('porAsignar')}
-        >
-          📋 Por Asignar ({registros.porAsignar.length})
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'enProceso' ? 'active' : ''}`}
-          onClick={() => setActiveTab('enProceso')}
-        >
-          ⏳ En Proceso ({registros.enProceso.length})
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'porEvaluar' ? 'active' : ''}`}
-          onClick={() => setActiveTab('porEvaluar')}
-        >
-          ✅ Por Evaluar ({registros.porEvaluar.length})
-        </button>
-      </div>
-
-      <div className="tab-content">
-        {activeTab === 'porAsignar' && (
-          <div className="seccion-registros">
-            <h3>Registros Por Asignar</h3>
-            <p>Asigna estos registros a un analista para su procesamiento</p>
-            <div className="registros-grid">
-              {registros.porAsignar.map(registro => 
-                renderRegistroCard(registro, registro.tipo)
-              )}
-              {registros.porAsignar.length === 0 && (
-                <p className="no-registros">No hay registros por asignar</p>
-              )}
-            </div>
+      {!showUsuarios ? (
+        <>
+          <div className="evaluador-tabs">
+            <button 
+              className={`tab-btn ${activeTab === 'porAsignar' ? 'active' : ''}`}
+              onClick={() => setActiveTab('porAsignar')}
+            >
+              📋 Por Asignar ({registros.porAsignar.length})
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'enProceso' ? 'active' : ''}`}
+              onClick={() => setActiveTab('enProceso')}
+            >
+              ⏳ En Proceso ({registros.enProceso.length})
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'porEvaluar' ? 'active' : ''}`}
+              onClick={() => setActiveTab('porEvaluar')}
+            >
+              ✅ Por Evaluar ({registros.porEvaluar.length})
+            </button>
           </div>
-        )}
 
-        {activeTab === 'enProceso' && (
-          <div className="seccion-registros">
-            <h3>Registros En Proceso</h3>
-            <p>Registros asignados a analistas que están siendo procesados</p>
-            <div className="registros-grid">
-              {registros.enProceso.map(registro => 
-                renderRegistroCard(registro, registro.tipo)
-              )}
-              {registros.enProceso.length === 0 && (
-                <p className="no-registros">No hay registros en proceso</p>
-              )}
-            </div>
-          </div>
-        )}
+          <div className="tab-content">
+            {activeTab === 'porAsignar' && (
+              <div className="seccion-registros">
+                <h3>Registros Por Asignar</h3>
+                <p>Asigna estos registros a un analista para su procesamiento</p>
+                <div className="registros-grid">
+                  {registros.porAsignar.map(registro => 
+                    renderRegistroCard(registro, registro.tipo)
+                  )}
+                  {registros.porAsignar.length === 0 && (
+                    <p className="no-registros">No hay registros por asignar</p>
+                  )}
+                </div>
+              </div>
+            )}
 
-        {activeTab === 'porEvaluar' && (
-          <div className="seccion-registros">
-            <h3>Registros Por Evaluar</h3>
-            <p>Registros completados por analistas que requieren tu aprobación</p>
-            <div className="registros-grid">
-              {registros.porEvaluar.map(registro => 
-                renderRegistroCard(registro, registro.tipo)
-              )}
-              {registros.porEvaluar.length === 0 && (
-                <p className="no-registros">No hay registros por evaluar</p>
-              )}
-            </div>
+            {activeTab === 'enProceso' && (
+              <div className="seccion-registros">
+                <h3>Registros En Proceso</h3>
+                <p>Registros asignados a analistas que están siendo procesados</p>
+                <div className="registros-grid">
+                  {registros.enProceso.map(registro => 
+                    renderRegistroCard(registro, registro.tipo)
+                  )}
+                  {registros.enProceso.length === 0 && (
+                    <p className="no-registros">No hay registros en proceso</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'porEvaluar' && (
+              <div className="seccion-registros">
+                <h3>Registros Por Evaluar</h3>
+                <p>Registros completados por analistas que requieren tu aprobación</p>
+                <div className="registros-grid">
+                  {registros.porEvaluar.map(registro => 
+                    renderRegistroCard(registro, registro.tipo)
+                  )}
+                  {registros.porEvaluar.length === 0 && (
+                    <p className="no-registros">No hay registros por evaluar</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      ) : (
+        <UsuariosCRUD />
+      )}
     </div>
   );
 };

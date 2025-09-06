@@ -18,13 +18,37 @@ namespace reto_api.Controllers
 
         // GET: api/RegistroAgua
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RegistroAgua>>> GetRegistros()
+        public async Task<ActionResult<IEnumerable<object>>> GetRegistros()
         {
-            return await _context.RegistrosAgua
+            var registros = await _context.RegistrosAgua
                 .Include(r => r.UsuarioRegistro)
                 .Include(r => r.UsuarioAnalista)
                 .Include(r => r.UsuarioEvaluador)
                 .ToListAsync();
+
+            return registros.Select(r => new {
+                r.Id,
+                r.RegionSalud,
+                r.DptoArea,
+                r.TomadaPor,
+                r.NumOficio,
+                r.NumMuestra,
+                r.EnviadaPor,
+                r.Muestra,
+                r.Direccion,
+                r.CondicionMuestra,
+                r.MotivoSolicitud,
+                r.FechaToma,
+                r.FechaRecepcion,
+                r.CloroResidual,
+                r.Estado,
+                r.Observaciones,
+                r.UsuIdRegistro,
+                r.UsuIdAnalista,
+                r.UsuIdEvaluador,
+                // Agregar nombre del analista
+                Analista = r.UsuarioAnalista != null ? r.UsuarioAnalista.usu_nombre : null
+            }).ToList();
         }
 
         // GET: api/RegistroAgua/5
@@ -153,6 +177,46 @@ namespace reto_api.Controllers
             
             await _context.SaveChangesAsync();
             return Ok();
+        }
+
+        // GET: api/RegistroAgua/analista/{analistaId}
+        [HttpGet("analista/{analistaId}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetRegistrosPorAnalista(int analistaId)
+        {
+            if (analistaId <= 0)
+            {
+                return BadRequest("ID del analista no válido");
+            }
+
+            var registros = await _context.RegistrosAgua
+                .Include(r => r.UsuarioRegistro)
+                .Include(r => r.UsuarioAnalista)
+                .Include(r => r.UsuarioEvaluador)
+                .Where(r => r.UsuIdAnalista == analistaId && r.Estado == "En Proceso")
+                .ToListAsync();
+
+            return registros.Select(r => new {
+                r.Id,
+                r.RegionSalud,
+                r.DptoArea,
+                r.TomadaPor,
+                r.NumOficio,
+                r.NumMuestra,
+                r.EnviadaPor,
+                r.Muestra,
+                r.Direccion,
+                r.CondicionMuestra,
+                r.MotivoSolicitud,
+                r.FechaToma,
+                r.FechaRecepcion,
+                r.CloroResidual,
+                r.Estado,
+                r.Observaciones,
+                r.UsuIdRegistro,
+                r.UsuIdAnalista,
+                r.UsuIdEvaluador,
+                Tipo = "agua"
+            }).ToList();
         }
 
         // 🔹 Helpers para mapear entre DTO y Entidad

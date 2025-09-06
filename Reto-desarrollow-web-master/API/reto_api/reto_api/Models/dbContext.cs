@@ -78,6 +78,9 @@ namespace reto_api.Models
         [Required, MaxLength(50)]
         [Column("usu_rol")]
         public string usu_rol { get; set; } = string.Empty;
+
+        [Column("usu_activo")]
+        public bool usu_activo { get; set; } = true;
     }
 
     [Table("REGISTRO_AGUA")]

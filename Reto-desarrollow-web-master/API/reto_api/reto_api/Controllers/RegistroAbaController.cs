@@ -18,13 +18,39 @@ namespace reto_api.Controllers
 
         // GET: api/RegistroAba
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RegistroAba>>> GetRegistros()
+        public async Task<ActionResult<IEnumerable<object>>> GetRegistros()
         {
-            return await _context.RegistrosAba
+            var registros = await _context.RegistrosAba
                 .Include(r => r.UsuarioRegistro)
                 .Include(r => r.UsuarioAnalista)
                 .Include(r => r.UsuarioEvaluador)
                 .ToListAsync();
+
+            return registros.Select(r => new {
+                r.Id,
+                r.NumOficio,
+                r.NombreSolicitante,
+                r.FechaRecibo,
+                r.TipoMuestra,
+                r.CondicionRecepcion,
+                r.NumMuestra,
+                r.NumLote,
+                r.FechaEntrega,
+                r.Color,
+                r.Olor,
+                r.Sabor,
+                r.Aspecto,
+                r.Textura,
+                r.PesoNeto,
+                r.FechaVencimiento,
+                r.Estado,
+                r.Observaciones,
+                r.UsuIdRegistro,
+                r.UsuIdAnalista,
+                r.UsuIdEvaluador,
+                // Agregar nombre del analista
+                Analista = r.UsuarioAnalista != null ? r.UsuarioAnalista.usu_nombre : null
+            }).ToList();
         }
 
         // GET: api/RegistroAba/5
@@ -166,6 +192,48 @@ namespace reto_api.Controllers
             
             await _context.SaveChangesAsync();
             return Ok();
+        }
+
+        // GET: api/RegistroAba/analista/{analistaId}
+        [HttpGet("analista/{analistaId}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetRegistrosPorAnalista(int analistaId)
+        {
+            if (analistaId <= 0)
+            {
+                return BadRequest("ID del analista no válido");
+            }
+
+            var registros = await _context.RegistrosAba
+                .Include(r => r.UsuarioRegistro)
+                .Include(r => r.UsuarioAnalista)
+                .Include(r => r.UsuarioEvaluador)
+                .Where(r => r.UsuIdAnalista == analistaId && r.Estado == "En Proceso")
+                .ToListAsync();
+
+            return registros.Select(r => new {
+                r.Id,
+                r.NumOficio,
+                r.NombreSolicitante,
+                r.FechaRecibo,
+                r.TipoMuestra,
+                r.CondicionRecepcion,
+                r.NumMuestra,
+                r.NumLote,
+                r.FechaEntrega,
+                r.Color,
+                r.Olor,
+                r.Sabor,
+                r.Aspecto,
+                r.Textura,
+                r.PesoNeto,
+                r.FechaVencimiento,
+                r.Estado,
+                r.Observaciones,
+                r.UsuIdRegistro,
+                r.UsuIdAnalista,
+                r.UsuIdEvaluador,
+                Tipo = "aba"
+            }).ToList();
         }
 
         // 🔹 Helpers para mapear DTO <-> Entidad

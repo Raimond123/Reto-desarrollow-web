@@ -4,14 +4,16 @@ export const analistaService = {
   // Obtener registros asignados al analista
   async obtenerRegistrosAsignados(analistaId) {
     try {
+      console.log('🔍 Llamando endpoints con analistaId:', analistaId);
+      
       const [aguaResponse, abaResponse] = await Promise.all([
-        fetch(`${API_BASE_URL}/registroagua`, {
+        fetch(`${API_BASE_URL}/registroagua/analista/${analistaId}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
           }
         }),
-        fetch(`${API_BASE_URL}/registroaba`, {
+        fetch(`${API_BASE_URL}/registroaba/analista/${analistaId}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
@@ -19,19 +21,23 @@ export const analistaService = {
         })
       ]);
 
-      const aguaData = await aguaResponse.json();
-      const abaData = await abaResponse.json();
+      console.log('📡 Respuesta agua:', aguaResponse.status);
+      console.log('📡 Respuesta aba:', abaResponse.status);
 
-      // Filtrar solo los registros asignados a este analista
-      const registrosAgua = aguaData
-        .filter(r => r.usuIdAnalista === analistaId && r.estado === 'En Proceso')
-        .map(r => ({ ...r, tipo: 'agua' }));
-      
-      const registrosAba = abaData
-        .filter(r => r.usuIdAnalista === analistaId && r.estado === 'En Proceso')
-        .map(r => ({ ...r, tipo: 'aba' }));
+      if (!aguaResponse.ok) {
+        console.error('❌ Error en agua:', await aguaResponse.text());
+      }
+      if (!abaResponse.ok) {
+        console.error('❌ Error en aba:', await abaResponse.text());
+      }
 
-      return [...registrosAgua, ...registrosAba];
+      const aguaData = aguaResponse.ok ? await aguaResponse.json() : [];
+      const abaData = abaResponse.ok ? await abaResponse.json() : [];
+
+      console.log('📊 Datos agua:', aguaData);
+      console.log('📊 Datos aba:', abaData);
+
+      return [...aguaData, ...abaData];
     } catch (error) {
       console.error('Error al obtener registros asignados:', error);
       throw error;

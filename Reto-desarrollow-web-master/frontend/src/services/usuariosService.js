@@ -43,14 +43,32 @@ export const usuariosService = {
   // Actualizar usuario
   actualizarUsuario: async (id, usuario) => {
     try {
-      await api.put(`/usuarios/${id}`, { ...usuario, usu_id: id });
+      // Solo enviar campos que no estén vacíos
+      const usuarioData = {};
+      if (usuario.usu_nombre) usuarioData.usu_nombre = usuario.usu_nombre;
+      if (usuario.usu_correo) usuarioData.usu_correo = usuario.usu_correo;
+      if (usuario.usu_rol) usuarioData.usu_rol = usuario.usu_rol;
+      if (usuario.usu_contrasena) usuarioData.usu_contrasena = usuario.usu_contrasena;
+      
+      await api.put(`/usuarios/${id}`, usuarioData);
       return { success: true };
     } catch (error) {
-      throw new Error(`Error al actualizar usuario: ${error.message}`);
+      console.error('Error actualizando usuario:', error.response?.data || error.message);
+      throw new Error(`Error al actualizar usuario: ${error.response?.data?.message || error.message}`);
     }
   },
 
-  // Eliminar usuario
+  // Activar/Desactivar usuario (en lugar de eliminar)
+  toggleUsuarioActivo: async (id, activo) => {
+    try {
+      const response = await api.put(`/usuarios/${id}/toggle-active`, { activo });
+      return response.data;
+    } catch (error) {
+      throw new Error(`Error al cambiar estado del usuario: ${error.message}`);
+    }
+  },
+
+  // Eliminar usuario (mantenido para compatibilidad)
   eliminarUsuario: async (id) => {
     try {
       await api.delete(`/usuarios/${id}`);
