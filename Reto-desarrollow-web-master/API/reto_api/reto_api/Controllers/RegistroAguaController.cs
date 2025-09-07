@@ -26,7 +26,8 @@ namespace reto_api.Controllers
                 .Include(r => r.UsuarioEvaluador)
                 .ToListAsync();
 
-            return registros.Select(r => new {
+            return registros.Select(r => new
+            {
                 r.Id,
                 r.RegionSalud,
                 r.DptoArea,
@@ -40,13 +41,46 @@ namespace reto_api.Controllers
                 r.MotivoSolicitud,
                 r.FechaToma,
                 r.FechaRecepcion,
+                r.Color,
+                r.Olor,
+                r.Sabor,
+                r.Aspecto,
+                r.Textura,
+                r.PesoNeto,
+                r.FechaVencimiento,
+                r.Acidez,
                 r.CloroResidual,
-                r.Estado,
+                r.Cenizas,
+                r.Cumarina,
+                r.Cloruro,
+                r.Densidad,
+                r.Dureza,
+                r.ExtractoSeco,
+                r.Fecula,
+                r.GradoAlcoholico,
+                r.Humedad,
+                r.IndiceRefaccion,
+                r.IndiceAcidez,
+                r.IndiceRancidez,
+                r.MateriaGrasaCualit,
+                r.MateriaGrasaCuantit,
+                r.PH,
+                r.PruebaEber,
+                r.SolidosTotales,
+                r.TiempoCoccion,
+                r.OtrasDeterminaciones,
+                r.Referencia,
+                r.TemperaturaAmbiente,
+                r.FechaReporte,
+                r.MicrooroAerobios,
+                r.PseudomonasSPP,
+                r.MetodologiaReferencia,
                 r.Observaciones,
+                r.AptoConsumo,
+                r.Estado,
                 r.UsuIdRegistro,
                 r.UsuIdAnalista,
                 r.UsuIdEvaluador,
-                // Agregar nombre del analista
                 Analista = r.UsuarioAnalista != null ? r.UsuarioAnalista.usu_nombre : null
             }).ToList();
         }
@@ -82,10 +116,11 @@ namespace reto_api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { 
-                    message = "Error interno del servidor", 
+                return StatusCode(500, new
+                {
+                    message = "Error interno del servidor",
                     details = ex.Message,
-                    innerException = ex.InnerException?.Message 
+                    innerException = ex.InnerException?.Message
                 });
             }
         }
@@ -101,7 +136,6 @@ namespace reto_api.Controllers
             if (registro == null)
                 return NotFound();
 
-            // Actualizamos con el DTO
             UpdateEntityFromDTO(registro, dto);
 
             _context.Entry(registro).State = EntityState.Modified;
@@ -131,7 +165,7 @@ namespace reto_api.Controllers
 
             registro.UsuIdAnalista = dto.AnalistaId;
             registro.Estado = "En Proceso";
-            
+
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -145,7 +179,7 @@ namespace reto_api.Controllers
                 return NotFound();
 
             registro.Estado = "Aprobado";
-            
+
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -160,7 +194,7 @@ namespace reto_api.Controllers
 
             registro.Estado = "Rechazado";
             registro.Observaciones = dto.Motivo;
-            
+
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -174,7 +208,7 @@ namespace reto_api.Controllers
                 return NotFound();
 
             registro.Estado = "Por Evaluar";
-            
+
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -195,7 +229,8 @@ namespace reto_api.Controllers
                 .Where(r => r.UsuIdAnalista == analistaId && r.Estado == "En Proceso")
                 .ToListAsync();
 
-            return registros.Select(r => new {
+            return registros.Select(r => new
+            {
                 r.Id,
                 r.RegionSalud,
                 r.DptoArea,
@@ -219,11 +254,12 @@ namespace reto_api.Controllers
             }).ToList();
         }
 
-        // 🔹 Helpers para mapear entre DTO y Entidad
+        // 🔹 Helpers
         private RegistroAgua MapDTOToEntity(RegistroAguaDTO dto)
         {
             return new RegistroAgua
             {
+                Id = dto.Id,
                 RegionSalud = dto.RegionSalud,
                 DptoArea = dto.DptoArea,
                 TomadaPor = dto.TomadaPor,
@@ -236,14 +272,42 @@ namespace reto_api.Controllers
                 MotivoSolicitud = dto.MotivoSolicitud,
                 FechaToma = dto.FechaToma,
                 FechaRecepcion = dto.FechaRecepcion,
+                Color = dto.Color,
+                Olor = dto.Olor,
+                Sabor = dto.Sabor,
+                Aspecto = dto.Aspecto,
+                Textura = dto.Textura,
+                PesoNeto = dto.PesoNeto,
+                FechaVencimiento = dto.FechaVencimiento,
+                Acidez = dto.Acidez,
                 CloroResidual = dto.CloroResidual,
+                Cenizas = dto.Cenizas,
+                Cumarina = dto.Cumarina,
+                Cloruro = dto.Cloruro,
+                Densidad = dto.Densidad,
+                Dureza = dto.Dureza,
+                ExtractoSeco = dto.ExtractoSeco,
+                Fecula = dto.Fecula,
+                GradoAlcoholico = dto.GradoAlcoholico,
+                Humedad = dto.Humedad,
+                IndiceRefaccion = dto.IndiceRefaccion,
+                IndiceAcidez = dto.IndiceAcidez,
+                IndiceRancidez = dto.IndiceRancidez,
+                MateriaGrasaCualit = dto.MateriaGrasaCualit,
+                MateriaGrasaCuantit = dto.MateriaGrasaCuantit,
+                PH = dto.PH,
+                PruebaEber = dto.PruebaEber,
+                SolidosTotales = dto.SolidosTotales,
+                TiempoCoccion = dto.TiempoCoccion,
+                OtrasDeterminaciones = dto.OtrasDeterminaciones,
+                Referencia = dto.Referencia,
                 TemperaturaAmbiente = dto.TemperaturaAmbiente,
                 FechaReporte = dto.FechaReporte,
                 MicrooroAerobios = dto.MicrooroAerobios,
                 PseudomonasSPP = dto.PseudomonasSPP,
                 MetodologiaReferencia = dto.MetodologiaReferencia,
                 Observaciones = dto.Observaciones,
-                TipoCopa = dto.TipoCopa,
+                AptoConsumo = dto.AptoConsumo,
                 Estado = dto.Estado ?? "Por Asignar",
 
                 UsuIdRegistro = dto.UsuIdRegistro,
@@ -266,19 +330,43 @@ namespace reto_api.Controllers
             entity.MotivoSolicitud = dto.MotivoSolicitud;
             entity.FechaToma = dto.FechaToma;
             entity.FechaRecepcion = dto.FechaRecepcion;
+            entity.Color = dto.Color;
+            entity.Olor = dto.Olor;
+            entity.Sabor = dto.Sabor;
+            entity.Aspecto = dto.Aspecto;
+            entity.Textura = dto.Textura;
+            entity.PesoNeto = dto.PesoNeto;
+            entity.FechaVencimiento = dto.FechaVencimiento;
+            entity.Acidez = dto.Acidez;
             entity.CloroResidual = dto.CloroResidual;
+            entity.Cenizas = dto.Cenizas;
+            entity.Cumarina = dto.Cumarina;
+            entity.Cloruro = dto.Cloruro;
+            entity.Densidad = dto.Densidad;
+            entity.Dureza = dto.Dureza;
+            entity.ExtractoSeco = dto.ExtractoSeco;
+            entity.Fecula = dto.Fecula;
+            entity.GradoAlcoholico = dto.GradoAlcoholico;
+            entity.Humedad = dto.Humedad;
+            entity.IndiceRefaccion = dto.IndiceRefaccion;
+            entity.IndiceAcidez = dto.IndiceAcidez;
+            entity.IndiceRancidez = dto.IndiceRancidez;
+            entity.MateriaGrasaCualit = dto.MateriaGrasaCualit;
+            entity.MateriaGrasaCuantit = dto.MateriaGrasaCuantit;
+            entity.PH = dto.PH;
+            entity.PruebaEber = dto.PruebaEber;
+            entity.SolidosTotales = dto.SolidosTotales;
+            entity.TiempoCoccion = dto.TiempoCoccion;
+            entity.OtrasDeterminaciones = dto.OtrasDeterminaciones;
+            entity.Referencia = dto.Referencia;
             entity.TemperaturaAmbiente = dto.TemperaturaAmbiente;
             entity.FechaReporte = dto.FechaReporte;
             entity.MicrooroAerobios = dto.MicrooroAerobios;
             entity.PseudomonasSPP = dto.PseudomonasSPP;
             entity.MetodologiaReferencia = dto.MetodologiaReferencia;
             entity.Observaciones = dto.Observaciones;
-            entity.TipoCopa = dto.TipoCopa;
+            entity.AptoConsumo = dto.AptoConsumo;
             entity.Estado = dto.Estado;
-
-            entity.UsuIdRegistro = dto.UsuIdRegistro;
-            entity.UsuIdAnalista = dto.UsuIdAnalista;
-            entity.UsuIdEvaluador = dto.UsuIdEvaluador;
         }
     }
 }

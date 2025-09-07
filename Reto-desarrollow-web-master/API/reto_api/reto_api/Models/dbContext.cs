@@ -14,7 +14,9 @@ namespace reto_api.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Relación de RegistroAgua con Usuario
+            // ========================
+            // REGISTRO_AGUA: Relaciones
+            // ========================
             modelBuilder.Entity<RegistroAgua>()
                 .HasOne(r => r.UsuarioRegistro)
                 .WithMany()
@@ -33,7 +35,36 @@ namespace reto_api.Models
                 .HasForeignKey(r => r.UsuIdEvaluador)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Relación de RegistroAba con Usuario
+            // REGISTRO_AGUA: Tipos exactos según el CREATE TABLE
+            modelBuilder.Entity<RegistroAgua>(entity =>
+            {
+                // DECIMAL(p,s)
+                entity.Property(e => e.PesoNeto).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Acidez).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.CloroResidual).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.Cenizas).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.Cloruro).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.Densidad).HasColumnType("decimal(6,3)");
+                entity.Property(e => e.GradoAlcoholico).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.Humedad).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.IndiceRefaccion).HasColumnType("decimal(6,3)");
+                entity.Property(e => e.IndiceAcidez).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.IndiceRancidez).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.MateriaGrasaCuantit).HasColumnType("decimal(6,2)");
+                entity.Property(e => e.PH).HasColumnType("decimal(4,2)");
+                entity.Property(e => e.SolidosTotales).HasColumnType("decimal(6,2)");
+                entity.Property(e => e.TemperaturaAmbiente).HasColumnType("decimal(5,2)");
+
+                // DATE
+                entity.Property(e => e.FechaToma).HasColumnType("date");
+                entity.Property(e => e.FechaRecepcion).HasColumnType("date");
+                entity.Property(e => e.FechaVencimiento).HasColumnType("date");
+                entity.Property(e => e.FechaReporte).HasColumnType("date");
+            });
+
+            // ========================
+            // REGISTRO_ABA: Relaciones
+            // ========================
             modelBuilder.Entity<RegistroAba>()
                 .HasOne(r => r.UsuarioRegistro)
                 .WithMany()
@@ -83,6 +114,9 @@ namespace reto_api.Models
         public bool usu_activo { get; set; } = true;
     }
 
+    // ========================
+    // REGISTRO_AGUA (ajustado al CREATE TABLE)
+    // ========================
     [Table("REGISTRO_AGUA")]
     public class RegistroAgua
     {
@@ -90,27 +124,55 @@ namespace reto_api.Models
         [Column("REG_AGUA_ID")]
         public int Id { get; set; }
 
-        [Column("REG_AGUA_REGION_SALUD")] public string? RegionSalud { get; set; }
-        [Column("REG_AGUA_DPTO_AREA")] public string? DptoArea { get; set; }
-        [Column("REG_AGUA_TOMADA_POR")] public string? TomadaPor { get; set; }
-        [Column("REG_AGUA_NUM_OFICIO")] public string? NumOficio { get; set; }
-        [Column("REG_AGUA_NUM_MUESTRA")] public string? NumMuestra { get; set; }
-        [Column("REG_AGUA_ENVIADA_POR")] public string? EnviadaPor { get; set; }
-        [Column("REG_AGUA_MUESTRA")] public string? Muestra { get; set; }
-        [Column("REG_AGUA_DIRECCION")] public string? Direccion { get; set; }
-        [Column("REG_AGUA_CONDICION_MUESTRA")] public string? CondicionMuestra { get; set; }
-        [Column("REG_AGUA_MOTIVO_SOLICITUD")] public string? MotivoSolicitud { get; set; }
+        [Column("REG_AGUA_REGION_SALUD"), MaxLength(100)] public string? RegionSalud { get; set; }
+        [Column("REG_AGUA_DPTO_AREA"), MaxLength(100)] public string? DptoArea { get; set; }
+        [Column("REG_AGUA_TOMADA_POR"), MaxLength(100)] public string? TomadaPor { get; set; }
+        [Column("REG_AGUA_NUM_OFICIO"), MaxLength(50)] public string? NumOficio { get; set; }
+        [Column("REG_AGUA_NUM_MUESTRA"), MaxLength(50)] public string? NumMuestra { get; set; }
+        [Column("REG_AGUA_ENVIADA_POR"), MaxLength(100)] public string? EnviadaPor { get; set; }
+        [Column("REG_AGUA_MUESTRA"), MaxLength(100)] public string? Muestra { get; set; }
+        [Column("REG_AGUA_DIRECCION"), MaxLength(200)] public string? Direccion { get; set; }
+        [Column("REG_AGUA_CONDICION_MUESTRA"), MaxLength(150)] public string? CondicionMuestra { get; set; }
+        [Column("REG_AGUA_MOTIVO_SOLICITUD"), MaxLength(200)] public string? MotivoSolicitud { get; set; }
         [Column("REG_AGUA_FECHA_TOMA")] public DateTime? FechaToma { get; set; }
         [Column("REG_AGUA_FECHA_RECEPCION")] public DateTime? FechaRecepcion { get; set; }
+        [Column("REG_AGUA_COLOR"), MaxLength(50)] public string? Color { get; set; }
+        [Column("REG_AGUA_OLOR"), MaxLength(50)] public string? Olor { get; set; }
+        [Column("REG_AGUA_SABOR"), MaxLength(50)] public string? Sabor { get; set; }
+        [Column("REG_AGUA_ASPECTO"), MaxLength(100)] public string? Aspecto { get; set; }
+        [Column("REG_AGUA_TEXTURA"), MaxLength(100)] public string? Textura { get; set; }
+        [Column("REG_AGUA_PESO_NETO")] public decimal? PesoNeto { get; set; }
+        [Column("REG_AGUA_FECHA_VENC")] public DateTime? FechaVencimiento { get; set; }
+        [Column("REG_AGUA_ACIDEZ")] public decimal? Acidez { get; set; }
         [Column("REG_AGUA_CLORO_RESIDUAL")] public decimal? CloroResidual { get; set; }
+        [Column("REG_AGUA_CENIZAS")] public decimal? Cenizas { get; set; }
+        [Column("REG_AGUA_CUMARINA"), MaxLength(50)] public string? Cumarina { get; set; }
+        [Column("REG_AGUA_CLORURO")] public decimal? Cloruro { get; set; }
+        [Column("REG_AGUA_DENSIDAD")] public decimal? Densidad { get; set; }
+        [Column("REG_AGUA_DUREZA"), MaxLength(50)] public string? Dureza { get; set; }
+        [Column("REG_AGUA_EXTRACTO_SECO"), MaxLength(50)] public string? ExtractoSeco { get; set; }
+        [Column("REG_AGUA_FECULA"), MaxLength(50)] public string? Fecula { get; set; }
+        [Column("REG_AGUA_GRADO_ALCOHOLICO")] public decimal? GradoAlcoholico { get; set; }
+        [Column("REG_AGUA_HUMEDAD")] public decimal? Humedad { get; set; }
+        [Column("REG_AGUA_INDICE_REFACCION")] public decimal? IndiceRefaccion { get; set; }
+        [Column("REG_AGUA_INDICE_ACIDEZ")] public decimal? IndiceAcidez { get; set; }
+        [Column("REG_AGUA_INDICE_RANCIDEZ")] public decimal? IndiceRancidez { get; set; }
+        [Column("REG_AGUA_MATERIA_GRASA_CUALIT"), MaxLength(100)] public string? MateriaGrasaCualit { get; set; }
+        [Column("REG_AGUA_MATERIA_GRASA_CUANTIT")] public decimal? MateriaGrasaCuantit { get; set; }
+        [Column("REG_AGUA_PH")] public decimal? PH { get; set; }
+        [Column("REG_AGUA_PRUEBA_EBER"), MaxLength(50)] public string? PruebaEber { get; set; }
+        [Column("REG_AGUA_SOLIDOS_TOTALES")] public decimal? SolidosTotales { get; set; }
+        [Column("REG_AGUA_TIEMPO_COCCION"), MaxLength(50)] public string? TiempoCoccion { get; set; }
+        [Column("REG_AGUA_OTRAS_DETERMINACIONES"), MaxLength(300)] public string? OtrasDeterminaciones { get; set; }
+        [Column("REG_AGUA_REFERENCIA"), MaxLength(200)] public string? Referencia { get; set; }
         [Column("REG_AGUA_TEMPERATURA_AMBIENTE")] public decimal? TemperaturaAmbiente { get; set; }
         [Column("REG_AGUA_FECHA_REPORTE")] public DateTime? FechaReporte { get; set; }
-        [Column("REG_AGUA_MICRORO_AEROBIOS")] public string? MicrooroAerobios { get; set; }
-        [Column("REG_AGUA_PSEUDOMONAS_SPP")] public string? PseudomonasSPP { get; set; }
-        [Column("REG_AGUA_METODOLOGIA_REFERENCIA")] public string? MetodologiaReferencia { get; set; }
-        [Column("REG_AGUA_OBSERVACIONES")] public string? Observaciones { get; set; }
-        [Column("REG_AGUA_TIPO_COPA")] public string? TipoCopa { get; set; }
-        [Column("REG_AGUA_ESTADO")] public string? Estado { get; set; }
+        [Column("REG_AGUA_MICRORO_AEROBIOS"), MaxLength(100)] public string? MicrooroAerobios { get; set; }
+        [Column("REG_AGUA_PSEUDOMONAS_SPP"), MaxLength(100)] public string? PseudomonasSPP { get; set; }
+        [Column("REG_AGUA_METODOLOGIA_REFERENCIA"), MaxLength(200)] public string? MetodologiaReferencia { get; set; }
+        [Column("REG_AGUA_OBSERVACIONES"), MaxLength(500)] public string? Observaciones { get; set; }
+        [Column("REG_AGUA_APTO_CONSUMO")] public bool? AptoConsumo { get; set; }
+        [Column("REG_AGUA_ESTADO"), MaxLength(50)] public string? Estado { get; set; }
 
         // Relaciones con Usuario
         [ForeignKey("UsuarioRegistro")]
@@ -127,6 +189,9 @@ namespace reto_api.Models
         public Usuario? UsuarioEvaluador { get; set; }
     }
 
+    // ========================
+    // REGISTRO_ABA (tu clase original)
+    // ========================
     [Table("REGISTRO_ABA")]
     public class RegistroAba
     {
