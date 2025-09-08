@@ -8,8 +8,8 @@ const FormularioRegistroAgua = ({ onVolver }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // ✅ Estado con campos básicos y los organolépticos
   const [formData, setFormData] = useState({
-    // Información básica
     regionSalud: '',
     dptoArea: '',
     tomadaPor: '',
@@ -22,8 +22,6 @@ const FormularioRegistroAgua = ({ onVolver }) => {
     motivoSolicitud: '',
     fechaToma: '',
     fechaRecepcion: '',
-    
-    // Parámetros específicos de agua
     cloroResidual: '',
     temperaturaAmbiente: '',
     fechaReporte: '',
@@ -32,7 +30,14 @@ const FormularioRegistroAgua = ({ onVolver }) => {
     metodologiaReferencia: '',
     observaciones: '',
     tipoCopa: '',
-    estado: 'Por Asignar'
+    estado: 'Por Asignar',
+    // Nuevos campos organolépticos
+    color: '',
+    olor: '',
+    sabor: '',
+    aspecto: '',
+    textura: '',
+    pesoNeto: ''
   });
 
   const handleChange = (e) => {
@@ -50,36 +55,14 @@ const FormularioRegistroAgua = ({ onVolver }) => {
     setSuccess('');
 
     try {
-      console.log('Usuario actual completo:', user);
-      console.log('Propiedades del usuario:', Object.keys(user || {}));
-      // console.log('UsuarioId:', user?.UsuarioId);
-      // console.log('usu_id:', user?.usu_id);
-      // console.log('usuarioId:', user?.usuarioId);
-      console.log('usuarioId:', user?.id);
-
-      
-      // Obtener ID del usuario con múltiples fallbacks
-      // let userId = user?.UsuarioId || user?.usu_id || user?.usuarioId;
-      let userId = user?.id
-      
-      // Si no se encuentra en el objeto user, intentar localStorage
+      // ✅ capturar correctamente el id del usuario
+      let userId = user?.id;
       if (!userId) {
-        try {
-          const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
-          userId = savedUser.UsuarioId || savedUser.usu_id || savedUser.usuarioId;
-        } catch (error) {
-          console.error('Error parsing localStorage user:', error);
-        }
+        const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        userId = savedUser.id || 6;
       }
-      
-      // Como último recurso, usar ID 6 que corresponde a Pedro Registro
-      if (!userId) {
-        console.warn('No se pudo obtener ID del usuario, usando ID por defecto 6 (Pedro Registro)');
-        userId = 6;
-      }
-      
-      console.log('ID final a usar:', userId);
 
+      // Construimos el objeto a enviar al backend
       const registroData = {
         regionSalud: formData.regionSalud,
         dptoArea: formData.dptoArea,
@@ -102,13 +85,20 @@ const FormularioRegistroAgua = ({ onVolver }) => {
         observaciones: formData.observaciones,
         tipoCopa: formData.tipoCopa,
         estado: 'Por Asignar',
-        usuIdRegistro: userId
+        usuIdRegistro: userId,
+        // Nuevos campos organolépticos
+        color: formData.color,
+        olor: formData.olor,
+        sabor: formData.sabor,
+        aspecto: formData.aspecto,
+        textura: formData.textura,
+        pesoNeto: formData.pesoNeto
       };
 
       await registroService.guardarRegistroAgua(registroData);
       setSuccess('Registro de agua guardado exitosamente y enviado al evaluador');
       
-      // Limpiar formulario después de 2 segundos
+      // Reiniciamos formulario después de 2 segundos
       setTimeout(() => {
         setFormData({
           regionSalud: '',
@@ -131,7 +121,13 @@ const FormularioRegistroAgua = ({ onVolver }) => {
           metodologiaReferencia: '',
           observaciones: '',
           tipoCopa: '',
-          estado: 'Por Asignar'
+          estado: 'Por Asignar',
+          color: '',
+          olor: '',
+          sabor: '',
+          aspecto: '',
+          textura: '',
+          pesoNeto: ''
         });
         setSuccess('');
       }, 2000);
@@ -156,6 +152,7 @@ const FormularioRegistroAgua = ({ onVolver }) => {
       {success && <div className="success">{success}</div>}
 
       <form onSubmit={handleSubmit} className="registro-form">
+        
         {/* Información General */}
         <div className="form-section">
           <h3>Información General</h3>
@@ -314,6 +311,83 @@ const FormularioRegistroAgua = ({ onVolver }) => {
           </div>
         </div>
 
+        {/* ✅ Características Organolépticas */}
+        <div className="form-section">
+          <h3>Características Organolépticas</h3>
+          <div className="form-grid">
+            <div className="form-group">
+              <label htmlFor="color">Color:</label>
+              <input
+                type="text"
+                id="color"
+                name="color"
+                value={formData.color}
+                onChange={handleChange}
+                className="form-control"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="olor">Olor:</label>
+              <input
+                type="text"
+                id="olor"
+                name="olor"
+                value={formData.olor}
+                onChange={handleChange}
+                className="form-control"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="sabor">Sabor:</label>
+              <input
+                type="text"
+                id="sabor"
+                name="sabor"
+                value={formData.sabor}
+                onChange={handleChange}
+                className="form-control"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="aspecto">Aspecto:</label>
+              <input
+                type="text"
+                id="aspecto"
+                name="aspecto"
+                value={formData.aspecto}
+                onChange={handleChange}
+                className="form-control"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="textura">Textura:</label>
+              <input
+                type="text"
+                id="textura"
+                name="textura"
+                value={formData.textura}
+                onChange={handleChange}
+                className="form-control"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="pesoNeto">Peso Neto:</label>
+              <input
+                type="text"
+                id="pesoNeto"
+                name="pesoNeto"
+                value={formData.pesoNeto}
+                onChange={handleChange}
+                className="form-control"
+              />
+            </div>
+          </div>
+        </div>
 
         {/* Botones de Acción */}
         <div className="form-actions">
