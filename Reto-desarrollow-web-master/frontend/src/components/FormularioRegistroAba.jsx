@@ -30,8 +30,6 @@ const FormularioRegistroAba = ({ onVolver }) => {
     fechaVencimiento: '',
     
     // Solo campos necesarios para el backend
-    observaciones: '',
-    aptoConsumo: false,
     estado: 'Por Asignar'
   });
 
@@ -86,8 +84,6 @@ const FormularioRegistroAba = ({ onVolver }) => {
         textura: formData.textura,
         pesoNeto: formData.pesoNeto ? parseFloat(formData.pesoNeto) : null,
         fechaVencimiento: formData.fechaVencimiento || null,
-        observaciones: formData.observaciones,
-        aptoConsumo: formData.aptoConsumo,
         estado: 'Por Asignar',
         usuIdRegistro: userId
       };
@@ -116,8 +112,6 @@ const FormularioRegistroAba = ({ onVolver }) => {
           textura: '',
           pesoNeto: '',
           fechaVencimiento: '',
-          observaciones: '',
-          aptoConsumo: false,
           estado: 'Por Asignar'
         });
         setSuccess('');
@@ -350,36 +344,6 @@ const FormularioRegistroAba = ({ onVolver }) => {
           </div>
         </div>
 
-        {/* Observaciones y Estado Final */}
-        <div className="form-section">
-          <h3>Observaciones</h3>
-          <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="observaciones">Observaciones:</label>
-              <textarea
-                id="observaciones"
-                name="observaciones"
-                value={formData.observaciones}
-                onChange={handleChange}
-                className="form-control"
-                rows="3"
-              />
-            </div>
-
-            <div className="form-group checkbox-group">
-              <label htmlFor="aptoConsumo">
-                <input
-                  type="checkbox"
-                  id="aptoConsumo"
-                  name="aptoConsumo"
-                  checked={formData.aptoConsumo}
-                  onChange={handleChange}
-                />
-                Apto para Consumo
-              </label>
-            </div>
-          </div>
-        </div>
 
         {/* Botones de Acción */}
         <div className="form-actions">
