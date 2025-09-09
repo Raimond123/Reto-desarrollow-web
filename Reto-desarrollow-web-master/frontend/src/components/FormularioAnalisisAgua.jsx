@@ -1,37 +1,24 @@
 import React, { useState } from 'react';
 import { analistaService } from '../services/analistaService';
+import '../styles/FormularioAnalisisAgua.css';  // 👈 Archivo CSS con estilos mejorados
 
 const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
   const [formData, setFormData] = useState({
-    acidez: '',
-    cloroResidual: '',
-    cenizas: '',
-    cumarina: '',
-    cloruro: '',
-    densidad: '',
-    dureza: '',
-    extractoSeco: '',
-    fecula: '',
-    gradoAlcoholico: '',
-    humedad: '',
-    indiceRefaccion: '',
-    indiceAcidez: '',
-    indiceRancidez: '',
-    materiaGrasaCualit: '',
-    materiaGrasaCuantit: '',
-    ph: '',
-    pruebaEber: '',
-    solidosTotales: '',
-    tiempoCoccion: '',
-    otrasDeterminaciones: '',
-    referencia: '',
-    temperaturaAmbiente: '',
+    // Físico-químico   
+    acidez: '', cloroResidual: '', cenizas: '', cumarina: '', cloruro: '',
+    densidad: '', dureza: '', extractoSeco: '', fecula: '',
+    gradoAlcoholico: '', humedad: '', indiceRefaccion: '', indiceAcidez: '',
+    indiceRancidez: '', materiaGrasaCualit: '', materiaGrasaCuantit: '',
+    ph: '', pruebaEber: '', solidosTotales: '', tiempoCoccion: '',
+    otrasDeterminaciones: '', referencia: '', temperaturaAmbiente: '',
     fechaReporte: '',
-    microoroAerobios: '',
-    pseudomonasSPP: '',
-    metodologiaReferencia: '',
-    observaciones: '',
-    aptoConsumo: false
+    // Microbiológicos
+    resMicroorganismosAerobios: '', resRecuentoColiformes: '', resColiformesTotales: '',
+    resPseudomonasSpp: '', resEColi: '', resSalmonellaSpp: '',
+    resEstafilococosAureus: '', resHongos: '', resLevaduras: '',
+    resEsterilidadComercial: '', resListeriaMonocytogenes: '',
+    metodologiaReferencia: '', equipos: '',
+    observaciones: '', aptoConsumo: false
   });
 
   const [loading, setLoading] = useState(false);
@@ -51,17 +38,10 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
     setMensaje('');
 
     try {
-      const analisisData = {
-        id: registro.id,
-        ...formData,
-        estado: 'Por Evaluar'
-      };
-
+      const analisisData = { id: registro.id, ...formData, estado: 'Por Evaluar' };
       await analistaService.guardarAnalisisAgua(registro.id, analisisData);
       setMensaje('✅ Análisis guardado exitosamente');
-      setTimeout(() => {
-        onFinalizar();
-      }, 1500);
+      setTimeout(() => onFinalizar(), 1500);
     } catch (err) {
       setMensaje(`❌ Error: ${err.message}`);
     } finally {
@@ -69,173 +49,103 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
     }
   };
 
+  const renderInput = (label, type, name, step = null) => (
+    <div className="form-group-lg">
+      <label>{label}</label>
+      <input
+        className="form-control-lg"
+        type={type}
+        step={step || undefined}
+        name={name}
+        value={formData[name]}
+        onChange={handleChange}
+      />
+    </div>
+  );
+
+  const renderTextarea = (label, name) => (
+    <div className="form-group-lg">
+      <label>{label}</label>
+      <textarea
+        className="form-control-lg"
+        name={name}
+        value={formData[name]}
+        onChange={handleChange}
+      />
+    </div>
+  );
+
   return (
     <div className="formulario-container">
       <div className="formulario-header">
-        <button className="btn btn-secondary" onClick={onVolver}>
+        <button className="btn btn-secondary btn-lg" onClick={onVolver}>
           ← Volver al Dashboard
         </button>
-        <h2>🔬 Analizar Registro Agua #{registro.id}</h2>
+        <h2 className="titulo-grande">🔬 Analizar Registro Agua #{registro.id}</h2>
       </div>
 
       {mensaje && <div className="alert">{mensaje}</div>}
 
       <form onSubmit={handleSubmit} className="registro-form">
-
-        {/* Sección principal de análisis */}
+        
+        {/* Fisicoquímicos */}
         <div className="form-section">
-          <h3>Parámetros de Análisis</h3>
+          <h3 className="subtitulo">Parámetros Fisicoquímicos</h3>
           <div className="form-grid">
+            {renderInput("Acidez", "number", "acidez", "0.01")}
+            {renderInput("Cloro Residual", "number", "cloroResidual", "0.01")}
+            {renderInput("Cenizas", "number", "cenizas", "0.01")}
+            {renderInput("Cumarina", "text", "cumarina")}
+            {renderInput("Cloruro", "number", "cloruro", "0.01")}
+            {renderInput("Densidad", "number", "densidad", "0.001")}
+            {renderInput("Dureza", "text", "dureza")}
+            {renderInput("Extracto Seco", "text", "extractoSeco")}
+            {renderInput("Fécula", "text", "fecula")}
+            {renderInput("Grado Alcohólico", "number", "gradoAlcoholico", "0.01")}
+            {renderInput("Humedad", "number", "humedad", "0.01")}
+            {renderInput("Índice Refacción", "number", "indiceRefaccion", "0.001")}
+            {renderInput("Índice Acidez", "number", "indiceAcidez", "0.01")}
+            {renderInput("Índice Rancidez", "number", "indiceRancidez", "0.01")}
+            {renderInput("Materia Grasa Cualitativa", "text", "materiaGrasaCualit")}
+            {renderInput("Materia Grasa Cuantitativa", "number", "materiaGrasaCuantit", "0.01")}
+            {renderInput("pH", "number", "ph", "0.01")}
+            {renderInput("Prueba de Eber", "text", "pruebaEber")}
+            {renderInput("Sólidos Totales", "number", "solidosTotales", "0.01")}
+            {renderInput("Tiempo de Cocción", "text", "tiempoCoccion")}
+            {renderTextarea("Otras Determinaciones", "otrasDeterminaciones")}
+            {renderInput("Referencia", "text", "referencia")}
+            {renderInput("Temperatura Ambiente", "number", "temperaturaAmbiente", "0.01")}
+            {renderInput("Fecha Reporte", "date", "fechaReporte")}
+          </div>
+        </div>
 
-            <div className="form-group">
-              <label>Acidez</label>
-              <input type="number" step="0.01" name="acidez" value={formData.acidez} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Cloro Residual</label>
-              <input type="number" step="0.01" name="cloroResidual" value={formData.cloroResidual} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Cenizas</label>
-              <input type="number" step="0.01" name="cenizas" value={formData.cenizas} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Cumarina</label>
-              <input type="text" name="cumarina" value={formData.cumarina} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Cloruro</label>
-              <input type="number" step="0.01" name="cloruro" value={formData.cloruro} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Densidad</label>
-              <input type="number" step="0.001" name="densidad" value={formData.densidad} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Dureza</label>
-              <input type="text" name="dureza" value={formData.dureza} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Extracto Seco</label>
-              <input type="text" name="extractoSeco" value={formData.extractoSeco} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Fécula</label>
-              <input type="text" name="fecula" value={formData.fecula} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Grado Alcohólico</label>
-              <input type="number" step="0.01" name="gradoAlcoholico" value={formData.gradoAlcoholico} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Humedad</label>
-              <input type="number" step="0.01" name="humedad" value={formData.humedad} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Índice de Refacción</label>
-              <input type="number" step="0.001" name="indiceRefaccion" value={formData.indiceRefaccion} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Índice de Acidez</label>
-              <input type="number" step="0.01" name="indiceAcidez" value={formData.indiceAcidez} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Índice de Rancidez</label>
-              <input type="number" step="0.01" name="indiceRancidez" value={formData.indiceRancidez} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Materia Grasa Cualitativa</label>
-              <input type="text" name="materiaGrasaCualit" value={formData.materiaGrasaCualit} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Materia Grasa Cuantitativa</label>
-              <input type="number" step="0.01" name="materiaGrasaCuantit" value={formData.materiaGrasaCuantit} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>pH</label>
-              <input type="number" step="0.01" name="ph" value={formData.ph} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Prueba de Eber</label>
-              <input type="text" name="pruebaEber" value={formData.pruebaEber} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Sólidos Totales</label>
-              <input type="number" step="0.01" name="solidosTotales" value={formData.solidosTotales} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Tiempo Cocción</label>
-              <input type="text" name="tiempoCoccion" value={formData.tiempoCoccion} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Otras Determinaciones</label>
-              <textarea name="otrasDeterminaciones" value={formData.otrasDeterminaciones} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Referencia</label>
-              <input type="text" name="referencia" value={formData.referencia} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Temperatura Ambiente</label>
-              <input type="number" step="0.01" name="temperaturaAmbiente" value={formData.temperaturaAmbiente} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Fecha Reporte</label>
-              <input type="date" name="fechaReporte" value={formData.fechaReporte} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Microoro Aerobios</label>
-              <input type="text" name="microoroAerobios" value={formData.microoroAerobios} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Pseudomonas SPP</label>
-              <input type="text" name="pseudomonasSPP" value={formData.pseudomonasSPP} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Metodología Referencia</label>
-              <input type="text" name="metodologiaReferencia" value={formData.metodologiaReferencia} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Observaciones</label>
-              <textarea name="observaciones" value={formData.observaciones} onChange={handleChange}/>
-            </div>
-
-            <div className="form-group">
-              <label>Apto para Consumo</label>
+        {/* Microbiológicos */}
+        <div className="form-section">
+          <h3 className="subtitulo">Parámetros Microbiológicos</h3>
+          <div className="form-grid">
+            {renderInput("Microorganismos Aerobios", "text", "resMicroorganismosAerobios")}
+            {renderInput("Recuento Coliformes", "text", "resRecuentoColiformes")}
+            {renderInput("Coliformes Totales", "text", "resColiformesTotales")}
+            {renderInput("Pseudomonas SPP", "text", "resPseudomonasSpp")}
+            {renderInput("E.Coli", "text", "resEColi")}
+            {renderInput("Salmonella SPP", "text", "resSalmonellaSpp")}
+            {renderInput("Estafilococos Aureus", "text", "resEstafilococosAureus")}
+            {renderInput("Hongos", "text", "resHongos")}
+            {renderInput("Levaduras", "text", "resLevaduras")}
+            {renderInput("Esterilidad Comercial", "text", "resEsterilidadComercial")}
+            {renderInput("Listeria Monocytogenes", "text", "resListeriaMonocytogenes")}
+            {renderInput("Metodología Referencia", "text", "metodologiaReferencia")}
+            {renderInput("Equipos", "text", "equipos")}
+            {renderTextarea("Observaciones", "observaciones")}
+            <div className="form-check-lg">
               <input type="checkbox" name="aptoConsumo" checked={formData.aptoConsumo} onChange={handleChange}/>
+              <label>Apto para Consumo</label>
             </div>
           </div>
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" disabled={loading}>
+          <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
             {loading ? 'Guardando...' : 'Guardar Análisis'}
           </button>
         </div>

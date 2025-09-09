@@ -21,21 +21,8 @@ export const analistaService = {
         })
       ]);
 
-      console.log('📡 Respuesta agua:', aguaResponse.status);
-      console.log('📡 Respuesta aba:', abaResponse.status);
-
-      if (!aguaResponse.ok) {
-        console.error('❌ Error en agua:', await aguaResponse.text());
-      }
-      if (!abaResponse.ok) {
-        console.error('❌ Error en aba:', await abaResponse.text());
-      }
-
       const aguaData = aguaResponse.ok ? await aguaResponse.json() : [];
       const abaData = abaResponse.ok ? await abaResponse.json() : [];
-
-      console.log('📊 Datos agua:', aguaData);
-      console.log('📊 Datos aba:', abaData);
 
       return [...aguaData, ...abaData];
     } catch (error) {
@@ -44,7 +31,58 @@ export const analistaService = {
     }
   },
 
-  // Marcar registro como completado
+  // Guardar análisis de AGUA
+  async guardarAnalisisAgua(registroId, analisisData) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/registroagua/${registroId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(analisisData)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error al guardar análisis de agua: ${errorText}`);
+      }
+
+      // ✅ Manejar cuando el backend devuelve vacío (204 o 200 sin body)
+      const text = await response.text();
+      return text ? JSON.parse(text) : { success: true };
+
+    } catch (error) {
+      console.error('Error en guardarAnalisisAgua:', error);
+      throw error;
+    }
+  },
+
+  // Guardar análisis de ABA (si también lo necesitas)
+  async guardarAnalisisAba(registroId, analisisData) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/registroaba/${registroId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(analisisData)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error al guardar análisis ABA: ${errorText}`);
+      }
+
+      return response.status === 204 ? { success: true } : await response.json();
+    } catch (error) {
+      console.error('Error en guardarAnalisisAba:', error);
+      throw error;
+    }
+  },
+
+  // Marcar registro como completado (estado a "Por Evaluar")
   async completarRegistro(registroId, tipoRegistro) {
     try {
       const endpoint = tipoRegistro === 'agua' ? 'registroagua' : 'registroaba';
@@ -60,7 +98,7 @@ export const analistaService = {
         throw new Error('Error al completar registro');
       }
 
-      return await response.json();
+      return response.status === 204 ? { success: true } : await response.json();
     } catch (error) {
       console.error('Error al completar registro:', error);
       throw error;
