@@ -72,9 +72,20 @@ namespace reto_api.Controllers
                 r.Referencia,
                 r.TemperaturaAmbiente,
                 r.FechaReporte,
-                r.MicrooroAerobios,
-                r.PseudomonasSPP,
+                // ✅ Microbiológicos
+                r.ResMicroorganismosAerobios,
+                r.ResRecuentoColiformes,
+                r.ResColiformesTotales,
+                r.ResPseudomonasSpp,
+                r.ResEColi,
+                r.ResSalmonellaSpp,
+                r.ResEstafilococosAureus,
+                r.ResHongos,
+                r.ResLevaduras,
+                r.ResEsterilidadComercial,
+                r.ResListeriaMonocytogenes,
                 r.MetodologiaReferencia,
+                r.Equipos,
                 r.Observaciones,
                 r.AptoConsumo,
                 r.Estado,
@@ -254,7 +265,7 @@ namespace reto_api.Controllers
             }).ToList();
         }
 
-        // 🔹 Helpers
+        // 🔹 Helpers: Mapear DTO
         private RegistroAgua MapDTOToEntity(RegistroAguaDTO dto)
         {
             return new RegistroAgua
@@ -303,13 +314,23 @@ namespace reto_api.Controllers
                 Referencia = dto.Referencia,
                 TemperaturaAmbiente = dto.TemperaturaAmbiente,
                 FechaReporte = dto.FechaReporte,
-                MicrooroAerobios = dto.MicrooroAerobios,
-                PseudomonasSPP = dto.PseudomonasSPP,
+                // ✅ Microbiológicos
+                ResMicroorganismosAerobios = dto.ResMicroorganismosAerobios,
+                ResRecuentoColiformes = dto.ResRecuentoColiformes,
+                ResColiformesTotales = dto.ResColiformesTotales,
+                ResPseudomonasSpp = dto.ResPseudomonasSpp,
+                ResEColi = dto.ResEColi,
+                ResSalmonellaSpp = dto.ResSalmonellaSpp,
+                ResEstafilococosAureus = dto.ResEstafilococosAureus,
+                ResHongos = dto.ResHongos,
+                ResLevaduras = dto.ResLevaduras,
+                ResEsterilidadComercial = dto.ResEsterilidadComercial,
+                ResListeriaMonocytogenes = dto.ResListeriaMonocytogenes,
                 MetodologiaReferencia = dto.MetodologiaReferencia,
+                Equipos = dto.Equipos,
                 Observaciones = dto.Observaciones,
                 AptoConsumo = dto.AptoConsumo,
                 Estado = dto.Estado ?? "Por Asignar",
-
                 UsuIdRegistro = dto.UsuIdRegistro,
                 UsuIdAnalista = dto.UsuIdAnalista,
                 UsuIdEvaluador = dto.UsuIdEvaluador
@@ -361,9 +382,20 @@ namespace reto_api.Controllers
             entity.Referencia = dto.Referencia;
             entity.TemperaturaAmbiente = dto.TemperaturaAmbiente;
             entity.FechaReporte = dto.FechaReporte;
-            entity.MicrooroAerobios = dto.MicrooroAerobios;
-            entity.PseudomonasSPP = dto.PseudomonasSPP;
+            // ✅ Microbiológicos
+            entity.ResMicroorganismosAerobios = dto.ResMicroorganismosAerobios;
+            entity.ResRecuentoColiformes = dto.ResRecuentoColiformes;
+            entity.ResColiformesTotales = dto.ResColiformesTotales;
+            entity.ResPseudomonasSpp = dto.ResPseudomonasSpp;
+            entity.ResEColi = dto.ResEColi;
+            entity.ResSalmonellaSpp = dto.ResSalmonellaSpp;
+            entity.ResEstafilococosAureus = dto.ResEstafilococosAureus;
+            entity.ResHongos = dto.ResHongos;
+            entity.ResLevaduras = dto.ResLevaduras;
+            entity.ResEsterilidadComercial = dto.ResEsterilidadComercial;
+            entity.ResListeriaMonocytogenes = dto.ResListeriaMonocytogenes;
             entity.MetodologiaReferencia = dto.MetodologiaReferencia;
+            entity.Equipos = dto.Equipos;
             entity.Observaciones = dto.Observaciones;
             entity.AptoConsumo = dto.AptoConsumo;
             entity.Estado = dto.Estado;

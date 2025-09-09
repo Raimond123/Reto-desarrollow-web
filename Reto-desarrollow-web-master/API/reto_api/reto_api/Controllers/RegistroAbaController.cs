@@ -48,7 +48,6 @@ namespace reto_api.Controllers
                 r.UsuIdRegistro,
                 r.UsuIdAnalista,
                 r.UsuIdEvaluador,
-                // Agregar nombre del analista
                 Analista = r.UsuarioAnalista != null ? r.UsuarioAnalista.usu_nombre : null
             }).ToList();
         }
@@ -84,8 +83,9 @@ namespace reto_api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { 
-                    message = "Error al guardar el registro ABA", 
+                return BadRequest(new
+                {
+                    message = "Error al guardar el registro ABA",
                     details = ex.Message,
                     innerException = ex.InnerException?.Message
                 });
@@ -146,7 +146,7 @@ namespace reto_api.Controllers
 
             registro.UsuIdAnalista = dto.AnalistaId;
             registro.Estado = "En Proceso";
-            
+
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -160,7 +160,7 @@ namespace reto_api.Controllers
                 return NotFound();
 
             registro.Estado = "Aprobado";
-            
+
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -175,7 +175,7 @@ namespace reto_api.Controllers
 
             registro.Estado = "Rechazado";
             registro.Observaciones = dto.Motivo;
-            
+
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -189,7 +189,7 @@ namespace reto_api.Controllers
                 return NotFound();
 
             registro.Estado = "Por Evaluar";
-            
+
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -232,64 +232,25 @@ namespace reto_api.Controllers
                 r.UsuIdRegistro,
                 r.UsuIdAnalista,
                 r.UsuIdEvaluador,
-                Tipo = "aba"
+                Analista = r.UsuarioAnalista != null ? r.UsuarioAnalista.usu_nombre : null,
+                Registro = r.UsuarioRegistro != null ? r.UsuarioRegistro.usu_nombre : null,
+                Evaluador = r.UsuarioEvaluador != null ? r.UsuarioEvaluador.usu_nombre : null
             }).ToList();
         }
 
-        // 🔹 Helpers para mapear DTO <-> Entidad
+        // ===========================
+        // Helpers para mapear el DTO
+        // ===========================
         private RegistroAba MapDTOToEntity(RegistroAbaDTO dto)
         {
-            return new RegistroAba
-            {
-                NumOficio = dto.NumOficio,
-                FechaRecibo = dto.FechaRecibo,
-                NombreSolicitante = dto.NombreSolicitante,
-                MotivoSolicitud = dto.MotivoSolicitud,
-                TipoMuestra = dto.TipoMuestra,
-                CondicionRecepcion = dto.CondicionRecepcion,
-                NumMuestra = dto.NumMuestra,
-                NumLote = dto.NumLote,
-                FechaEntrega = dto.FechaEntrega,
-                Color = dto.Color,
-                Olor = dto.Olor,
-                Sabor = dto.Sabor,
-                Aspecto = dto.Aspecto,
-                Textura = dto.Textura,
-                PesoNeto = dto.PesoNeto,
-                FechaVencimiento = dto.FechaVencimiento,
-                Acidez = dto.Acidez,
-                CloroResidual = dto.CloroResidual,
-                Cenizas = dto.Cenizas,
-                Cumarina = dto.Cumarina,
-                Cloruro = dto.Cloruro,
-                Densidad = dto.Densidad,
-                Dureza = dto.Dureza,
-                ExtractoSeco = dto.ExtractoSeco,
-                Fecula = dto.Fecula,
-                GradoAlcoholico = dto.GradoAlcoholico,
-                Humedad = dto.Humedad,
-                IndiceRefaccion = dto.IndiceRefaccion,
-                IndiceAcidez = dto.IndiceAcidez,
-                IndiceRancidez = dto.IndiceRancidez,
-                MateriaGrasaCualit = dto.MateriaGrasaCualit,
-                MateriaGrasaCuantit = dto.MateriaGrasaCuantit,
-                PH = dto.PH,
-                PruebaEber = dto.PruebaEber,
-                SolidosTotales = dto.SolidosTotales,
-                TiempoCoccion = dto.TiempoCoccion,
-                OtrasDeterminaciones = dto.OtrasDeterminaciones,
-                Referencia = dto.Referencia,
-                Observaciones = dto.Observaciones,
-                AptoConsumo = dto.AptoConsumo,
-                Estado = dto.Estado,
-                UsuIdRegistro = dto.UsuIdRegistro,
-                UsuIdAnalista = dto.UsuIdAnalista ,
-                UsuIdEvaluador = dto.UsuIdEvaluador
-            };
+            var entity = new RegistroAba();
+            UpdateEntityFromDTO(entity, dto);
+            return entity;
         }
 
         private void UpdateEntityFromDTO(RegistroAba entity, RegistroAbaDTO dto)
         {
+            entity.Id = dto.Id;
             entity.NumOficio = dto.NumOficio;
             entity.FechaRecibo = dto.FechaRecibo;
             entity.NombreSolicitante = dto.NombreSolicitante;
@@ -328,12 +289,25 @@ namespace reto_api.Controllers
             entity.TiempoCoccion = dto.TiempoCoccion;
             entity.OtrasDeterminaciones = dto.OtrasDeterminaciones;
             entity.Referencia = dto.Referencia;
+            entity.ResMicroorganismosAerobios = dto.ResMicroorganismosAerobios;
+            entity.ResRecuentoColiformes = dto.ResRecuentoColiformes;
+            entity.ResColiformesTotales = dto.ResColiformesTotales;
+            entity.ResPseudomonasSpp = dto.ResPseudomonasSpp;
+            entity.ResEColi = dto.ResEColi;
+            entity.ResSalmonellaSpp = dto.ResSalmonellaSpp;
+            entity.ResEstafilococosAureus = dto.ResEstafilococosAureus;
+            entity.ResHongos = dto.ResHongos;
+            entity.ResLevaduras = dto.ResLevaduras;
+            entity.ResEsterilidadComercial = dto.ResEsterilidadComercial;
+            entity.ResListeriaMonocytogenes = dto.ResListeriaMonocytogenes;
+            entity.MetodologiaReferencia = dto.MetodologiaReferencia;
+            entity.Equipos = dto.Equipos;
             entity.Observaciones = dto.Observaciones;
             entity.AptoConsumo = dto.AptoConsumo;
             entity.Estado = dto.Estado;
             entity.UsuIdRegistro = dto.UsuIdRegistro;
             entity.UsuIdAnalista = dto.UsuIdAnalista;
-            entity.UsuIdEvaluador = dto.UsuIdEvaluador ;
+            entity.UsuIdEvaluador = dto.UsuIdEvaluador;
         }
     }
 }

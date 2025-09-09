@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { analistaService } from '../services/analistaService';
+import FormularioAnalisisAgua from './FormularioAnalisisAgua';
 
 const AnalistaDashboard = () => {
   const { user, logout } = useAuth();
   const [registrosAsignados, setRegistrosAsignados] = useState([]);
+  const [registroEnAnalisis, setRegistroEnAnalisis] = useState(null); // ✅ nuevo estado
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -15,21 +17,12 @@ const AnalistaDashboard = () => {
   const cargarRegistrosAsignados = async () => {
     setLoading(true);
     try {
-      console.log('🔍 Usuario completo:', JSON.stringify(user, null, 2));
-      
-      // Buscar el ID en diferentes propiedades posibles
       const analistaId = user?.usuarioId || user?.usu_id || user?.id || user?.userId;
-      
-      console.log('🔍 ID encontrado:', analistaId);
-      
-      if (!analistaId) {
-        throw new Error('No se pudo obtener el ID del usuario analista');
-      }
-      
+      if (!analistaId) throw new Error('No se pudo obtener el ID del usuario analista');
+
       const registros = await analistaService.obtenerRegistrosAsignados(analistaId);
       setRegistrosAsignados(registros);
     } catch (err) {
-      console.error('❌ Error completo:', err);
       setError('Error al cargar registros: ' + err.message);
     } finally {
       setLoading(false);
@@ -39,12 +32,13 @@ const AnalistaDashboard = () => {
   const completarRegistro = async (registroId, tipoRegistro) => {
     try {
       await analistaService.completarRegistro(registroId, tipoRegistro);
-      await cargarRegistrosAsignados(); // Recargar datos
+      await cargarRegistrosAsignados();
     } catch (err) {
       setError('Error al completar registro: ' + err.message);
     }
   };
 
+  // Renderizamos cada tarjeta
   const renderRegistroCard = (registro) => (
     <div key={`${registro.tipo}-${registro.id}`} className="registro-card">
       <div className="registro-header">
@@ -63,10 +57,7 @@ const AnalistaDashboard = () => {
       <div className="registro-actions">
         <button 
           className="btn btn-primary"
-          onClick={() => {
-            // TODO: Implementar análisis completo
-            alert('Función de análisis - Por implementar');
-          }}
+          onClick={() => setRegistroEnAnalisis(registro)} // ✅ mostramos el formulario de análisis
         >
           🔬 Analizar
         </button>
@@ -80,11 +71,19 @@ const AnalistaDashboard = () => {
     </div>
   );
 
-  if (loading) {
+  if (loading) return <div className="loading">Cargando registros asignados...</div>;
+
+  // ✅ si hay registro en análisis, mostramos el formulario en vez de la lista
+  if (registroEnAnalisis) {
     return (
-      <div className="container">
-        <div className="loading">Cargando registros asignados...</div>
-      </div>
+      <FormularioAnalisisAgua 
+        registro={registroEnAnalisis}
+        onVolver={() => setRegistroEnAnalisis(null)}
+        onFinalizar={() => {
+          setRegistroEnAnalisis(null);
+          cargarRegistrosAsignados();
+        }}
+      />
     );
   }
 
@@ -100,17 +99,13 @@ const AnalistaDashboard = () => {
 
       {error && <div className="error">{error}</div>}
 
-      <div className="analista-content">
-        <div className="seccion-registros">
-          <h3>Registros Asignados ({registrosAsignados.length})</h3>
-          <p>Registros que te han sido asignados para análisis</p>
-          
-          <div className="registros-grid">
-            {registrosAsignados.map(registro => renderRegistroCard(registro))}
-            {registrosAsignados.length === 0 && (
-              <p className="no-registros">No tienes registros asignados</p>
-            )}
-          </div>
+      <div className="seccion-registros">
+        <h3>Registros Asignados ({registrosAsignados.length})</h3>
+        <p>Registros que te han sido asignados para análisis</p>
+        
+        <div className="registros-grid">
+          {registrosAsignados.map(registro => renderRegistroCard(registro))}
+          {registrosAsignados.length === 0 && <p>No tienes registros asignados</p>}
         </div>
       </div>
     </div>
