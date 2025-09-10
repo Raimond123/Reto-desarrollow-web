@@ -1,0 +1,153 @@
+/* Mantener los estilos originales del header */
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+}
+
+.header p {
+  margin: 0 0 1rem 0;
+  opacity: 0.9;
+}
+
+/* Estadísticas Panel */
+.estadisticas-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.stat-card h3 {
+  font-size: 2rem;
+  margin: 0;
+  color: #333;
+}
+
+.stat-card p {
+  margin: 0.5rem 0 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.stat-proceso {
+  border-top: 3px solid #17a2b8;
+}
+
+.stat-rechazado {
+  border-top: 3px solid #dc3545;
+}
+
+.stat-agua {
+  border-top: 3px solid #0066cc;
+}
+
+.stat-aba {
+  border-top: 3px solid #ff6b35;
+}
+
+/* Secciones de registros */
+.registros-section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.rechazados-title {
+  color: #dc3545;
+  border-bottom-color: #dc3545;
+}
+
+/* Tarjetas de registro */
+.registro-rechazado {
+  border: 2px solid #ffc107;
+  background-color: #fff8e1;
+}
+
+.registro-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge-rechazado {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.motivo-rechazo-preview {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.motivo-rechazo-preview p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.motivo-texto {
+  color: #721c24;
+  margin-top: 0.25rem !important;
+  font-style: italic;
+}
+
+.btn-analizar {
+  width: 100%;
+  padding: 0.75rem;
+  font-weight: bold;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #000;
+  border: none;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+}
+
+.no-registros {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}

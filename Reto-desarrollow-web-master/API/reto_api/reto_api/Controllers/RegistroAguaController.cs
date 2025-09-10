@@ -72,7 +72,6 @@ namespace reto_api.Controllers
                 r.Referencia,
                 r.TemperaturaAmbiente,
                 r.FechaReporte,
-                // ✅ Microbiológicos
                 r.ResMicroorganismosAerobios,
                 r.ResRecuentoColiformes,
                 r.ResColiformesTotales,
@@ -124,8 +123,6 @@ namespace reto_api.Controllers
                 registro.MotivoSolicitud,
                 registro.FechaToma,
                 registro.FechaRecepcion,
-
-                // 👇 Organo
                 registro.Color,
                 registro.Olor,
                 registro.Sabor,
@@ -133,8 +130,6 @@ namespace reto_api.Controllers
                 registro.Textura,
                 registro.PesoNeto,
                 registro.FechaVencimiento,
-
-                // 👇 Fisicoquímicos
                 registro.Acidez,
                 registro.CloroResidual,
                 registro.Cenizas,
@@ -159,8 +154,6 @@ namespace reto_api.Controllers
                 registro.Referencia,
                 registro.TemperaturaAmbiente,
                 registro.FechaReporte,
-
-                // 👇 Microbiológicos
                 registro.ResMicroorganismosAerobios,
                 registro.ResRecuentoColiformes,
                 registro.ResColiformesTotales,
@@ -172,7 +165,6 @@ namespace reto_api.Controllers
                 registro.ResLevaduras,
                 registro.ResEsterilidadComercial,
                 registro.ResListeriaMonocytogenes,
-
                 registro.MetodologiaReferencia,
                 registro.Equipos,
                 registro.Observaciones,
@@ -298,6 +290,7 @@ namespace reto_api.Controllers
         }
 
         // GET: api/RegistroAgua/analista/{analistaId}
+        // 🔴 AQUÍ ESTÁ LA CORRECCIÓN PRINCIPAL
         [HttpGet("analista/{analistaId}")]
         public async Task<ActionResult<IEnumerable<object>>> GetRegistrosPorAnalista(int analistaId)
         {
@@ -310,7 +303,8 @@ namespace reto_api.Controllers
                 .Include(r => r.UsuarioRegistro)
                 .Include(r => r.UsuarioAnalista)
                 .Include(r => r.UsuarioEvaluador)
-                .Where(r => r.UsuIdAnalista == analistaId && r.Estado == "En Proceso")
+                .Where(r => r.UsuIdAnalista == analistaId &&
+                           (r.Estado == "En Proceso" || r.Estado == "Rechazado")) // 🔴 INCLUIR RECHAZADOS
                 .ToListAsync();
 
             return registros.Select(r => new
@@ -328,8 +322,6 @@ namespace reto_api.Controllers
                 r.MotivoSolicitud,
                 r.FechaToma,
                 r.FechaRecepcion,
-
-                // 👇 Agregar organolépticos
                 r.Color,
                 r.Olor,
                 r.Sabor,
@@ -338,17 +330,62 @@ namespace reto_api.Controllers
                 r.PesoNeto,
                 r.FechaVencimiento,
 
+                // 🔴 AGREGAR TODOS LOS CAMPOS NECESARIOS
+                r.Acidez,
                 r.CloroResidual,
+                r.Cenizas,
+                r.Cumarina,
+                r.Cloruro,
+                r.Densidad,
+                r.Dureza,
+                r.ExtractoSeco,
+                r.Fecula,
+                r.GradoAlcoholico,
+                r.Humedad,
+                r.IndiceRefaccion,
+                r.IndiceAcidez,
+                r.IndiceRancidez,
+                r.MateriaGrasaCualit,
+                r.MateriaGrasaCuantit,
+                r.PH,
+                r.PruebaEber,
+                r.SolidosTotales,
+                r.TiempoCoccion,
+                r.OtrasDeterminaciones,
+                r.Referencia,
+                r.TemperaturaAmbiente,
+                r.FechaReporte,
+
+                // Microbiológicos
+                r.ResMicroorganismosAerobios,
+                r.ResRecuentoColiformes,
+                r.ResColiformesTotales,
+                r.ResPseudomonasSpp,
+                r.ResEColi,
+                r.ResSalmonellaSpp,
+                r.ResEstafilococosAureus,
+                r.ResHongos,
+                r.ResLevaduras,
+                r.ResEsterilidadComercial,
+                r.ResListeriaMonocytogenes,
+                r.MetodologiaReferencia,
+                r.Equipos,
+
                 r.Estado,
-                r.Observaciones,
+                r.Observaciones, // 🔴 IMPORTANTE: Incluir observaciones para ver el motivo del rechazo
+                r.AptoConsumo,
                 r.UsuIdRegistro,
                 r.UsuIdAnalista,
                 r.UsuIdEvaluador,
+
+                Analista = r.UsuarioAnalista != null ? r.UsuarioAnalista.usu_nombre : null,
+                Registro = r.UsuarioRegistro != null ? r.UsuarioRegistro.usu_nombre : null,
+                Evaluador = r.UsuarioEvaluador != null ? r.UsuarioEvaluador.usu_nombre : null,
                 Tipo = "agua"
             }).ToList();
         }
 
-        // 🔹 Helpers: Mapear DTO
+        // Helpers: Mapear DTO (sin cambios)
         private RegistroAgua MapDTOToEntity(RegistroAguaDTO dto)
         {
             return new RegistroAgua
@@ -397,7 +434,6 @@ namespace reto_api.Controllers
                 Referencia = dto.Referencia,
                 TemperaturaAmbiente = dto.TemperaturaAmbiente,
                 FechaReporte = dto.FechaReporte,
-                // ✅ Microbiológicos
                 ResMicroorganismosAerobios = dto.ResMicroorganismosAerobios,
                 ResRecuentoColiformes = dto.ResRecuentoColiformes,
                 ResColiformesTotales = dto.ResColiformesTotales,
@@ -465,7 +501,6 @@ namespace reto_api.Controllers
             entity.Referencia = dto.Referencia;
             entity.TemperaturaAmbiente = dto.TemperaturaAmbiente;
             entity.FechaReporte = dto.FechaReporte;
-            // ✅ Microbiológicos
             entity.ResMicroorganismosAerobios = dto.ResMicroorganismosAerobios;
             entity.ResRecuentoColiformes = dto.ResRecuentoColiformes;
             entity.ResColiformesTotales = dto.ResColiformesTotales;
