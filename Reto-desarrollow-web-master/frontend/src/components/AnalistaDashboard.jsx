@@ -62,12 +62,12 @@ const AnalistaDashboard = () => {
         >
           🔬 Analizar
         </button>
-        <button 
+        {/* <button 
           className="btn btn-success"
           onClick={() => completarRegistro(registro.id, registro.tipo)}
         >
           ✅ Marcar como Completado
-        </button>
+        </button> */}
       </div>
     </div>
   );
