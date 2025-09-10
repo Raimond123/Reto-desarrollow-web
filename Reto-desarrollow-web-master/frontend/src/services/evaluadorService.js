@@ -22,16 +22,18 @@ export const evaluadorService = {
       const aguaData = await aguaResponse.json();
       const abaData = await abaResponse.json();
 
-      // Combinar y agrupar por estado
+      // Combinar y agregar tipo
       const todosRegistros = [
         ...aguaData.map(r => ({ ...r, tipo: 'agua' })),
         ...abaData.map(r => ({ ...r, tipo: 'aba' }))
       ];
 
+      // 🔹 Agrupar también los rechazados
       return {
         porAsignar: todosRegistros.filter(r => r.estado === 'Por Asignar'),
         enProceso: todosRegistros.filter(r => r.estado === 'En Proceso'),
-        porEvaluar: todosRegistros.filter(r => r.estado === 'Por Evaluar')
+        porEvaluar: todosRegistros.filter(r => r.estado === 'Por Evaluar'),
+        rechazados: todosRegistros.filter(r => r.estado === 'Rechazado') // 👈 añadido
       };
     } catch (error) {
       console.error('Error al obtener registros:', error);
@@ -76,7 +78,7 @@ export const evaluadorService = {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ analistaId: parseInt(analistaId, 10) }) // 👈 importante! el DTO espera AnalistaId
+        body: JSON.stringify({ analistaId: parseInt(analistaId, 10) })
       });
 
       if (!response.ok) {
@@ -85,7 +87,6 @@ export const evaluadorService = {
         throw new Error(`Error al asignar analista -> ${errorText}`);
       }
 
-      // ✅ si no hay contenido, devolvemos un objeto básico
       if (response.status === 204) {
         return { success: true };
       }
@@ -100,6 +101,7 @@ export const evaluadorService = {
       throw error;
     }
   },
+
   // Aprobar registro
   aprobarRegistro: async (registroId, tipoRegistro) => {
     const endpoint = tipoRegistro === 'agua' ? 'RegistroAgua' : 'RegistroAba';
@@ -130,12 +132,10 @@ export const evaluadorService = {
       throw new Error('Error al rechazar registro');
     }
 
-    // Verificar si hay contenido antes de intentar parsear JSON
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
       return await response.json();
     } else {
-      // Si no hay contenido JSON, devolver un objeto vacío o null
       return { success: true };
     }
   }

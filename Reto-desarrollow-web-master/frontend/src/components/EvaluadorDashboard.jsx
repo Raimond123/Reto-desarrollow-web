@@ -10,15 +10,14 @@ const EvaluadorDashboard = () => {
   const [registros, setRegistros] = useState({
     porAsignar: [],
     enProceso: [],
-    porEvaluar: []
+    porEvaluar: [],
+    rechazados: [] // ✅ Asegurarse de que esté inicializado
   });
   const [analistas, setAnalistas] = useState([]);
   const [selecciones, setSelecciones] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showUsuarios, setShowUsuarios] = useState(false);
-
-  // 👁️ Estado para ver detalle
   const [registroSeleccionado, setRegistroSeleccionado] = useState(null);
 
   useEffect(() => {
@@ -32,10 +31,25 @@ const EvaluadorDashboard = () => {
         evaluadorService.obtenerRegistrosPorEstado(),
         evaluadorService.obtenerAnalistas()
       ]);
-      setRegistros(registrosData);
+      
+      // ✅ Asegurarse de que registrosData tenga todas las propiedades necesarias
+      setRegistros({
+        porAsignar: registrosData.porAsignar || [],
+        enProceso: registrosData.enProceso || [],
+        porEvaluar: registrosData.porEvaluar || [],
+        rechazados: registrosData.rechazados || []
+      });
+      
       setAnalistas(analistasData);
     } catch (err) {
       setError('Error al cargar datos: ' + err.message);
+      // ✅ En caso de error, mantener estructura vacía
+      setRegistros({
+        porAsignar: [],
+        enProceso: [],
+        porEvaluar: [],
+        rechazados: []
+      });
     } finally {
       setLoading(false);
     }
@@ -68,10 +82,8 @@ const EvaluadorDashboard = () => {
     }
   };
 
-  // 🔹 CORREGIDO: detectar tipo de registro y llamar API correcta
   const verDetalleRegistro = async (registro) => {
     try {
-      // Determinar el endpoint según el tipo
       const endpoint = registro.tipo === 'agua' 
         ? `https://localhost:7051/api/RegistroAgua/${registro.id}`
         : `https://localhost:7051/api/RegistroAba/${registro.id}`;
@@ -79,77 +91,98 @@ const EvaluadorDashboard = () => {
       const res = await fetch(endpoint);
       const data = await res.json();
       
-      // Agregar el tipo al objeto para usarlo en el renderizado
       setRegistroSeleccionado({ ...data, tipoRegistro: registro.tipo });
     } catch (err) {
       setError("Error al cargar el detalle del registro: " + err.message);
     }
   };
 
-  const renderRegistroCard = (registro, tipo) => (
-    <div key={`${tipo}-${registro.id}`} className="registro-card">
-      <div className="registro-header">
-        <h4>{tipo === 'agua' ? '💧 Registro Agua' : '🥘 Registro ABA'}</h4>
-        <span className="registro-id">#{registro.id}</span>
+  const renderRegistroCard = (registro, tipo) => {
+    const esRechazado = registro.estado === 'Rechazado';
+    
+    return (
+      <div key={`${tipo}-${registro.id}`} className={`registro-card ${esRechazado ? 'registro-rechazado' : ''}`}>
+        <div className="registro-header">
+          <h4>{tipo === 'agua' ? '💧 Registro Agua' : '🥘 Registro ABA'}</h4>
+          <span className="registro-id">#{registro.id}</span>
+        </div>
+        <div className="registro-info">
+          <p><strong>Oficio:</strong> {registro.numOficio}</p>
+          <p><strong>Solicitante:</strong> {registro.nombreSolicitante || registro.enviadaPor}</p>
+          <p><strong>Fecha:</strong> {new Date(registro.fechaRecibo || registro.fechaRecepcion).toLocaleDateString()}</p>
+          {registro.analista && <p><strong>Analista:</strong> {registro.analista}</p>}
+          
+          {/* Mostrar motivo de rechazo si está rechazado */}
+          {esRechazado && registro.observaciones && (
+            <div className="motivo-rechazo-card">
+              <p><strong>🔴 Motivo rechazo:</strong> {registro.observaciones}</p>
+            </div>
+          )}
+        </div>
+        <div className="registro-actions">
+          {activeTab === 'porAsignar' && (
+            <div className="asignar-section">
+              <select 
+                value={selecciones[registro.id] || ""}
+                onChange={(e) => setSelecciones(prev => ({
+                  ...prev,
+                  [registro.id]: e.target.value
+                }))}
+              >
+                <option value="">Seleccionar Analista</option>
+                {analistas.map(analista => (
+                  <option key={analista.usuarioId} value={analista.usuarioId}>
+                    {analista.nombre}
+                  </option>
+                ))}
+              </select>
+              <button 
+                className="btn btn-primary"
+                disabled={!selecciones[registro.id]} 
+                onClick={() => asignarAnalista(registro.id, registro.tipo, selecciones[registro.id], registro)}
+              >
+                Confirmar
+              </button>
+            </div>
+          )}
+          
+          {(activeTab === 'porEvaluar' || activeTab === 'rechazados') && (
+            <div className="evaluar-section">
+              <button 
+                className="btn btn-info" 
+                onClick={() => verDetalleRegistro(registro)}
+              >
+                👁️ Ver
+              </button>
+              
+              {/* Solo mostrar botones de aprobar/rechazar si no está ya rechazado */}
+              {activeTab === 'porEvaluar' && (
+                <>
+                  <button className="btn btn-success" onClick={() => aprobarRegistro(registro.id, registro.tipo)}>
+                    ✅ Aprobar
+                  </button>
+                  <button className="btn btn-danger" onClick={() => {
+                    const motivo = prompt('Motivo del rechazo:');
+                    if (motivo) rechazarRegistro(registro.id, registro.tipo, motivo);
+                  }}>
+                    ❌ Rechazar
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+          
+          {activeTab === 'enProceso' && (
+            <div className="proceso-info">
+              <span className="badge badge-info">En análisis por {registro.analista}</span>
+            </div>
+          )}
+        </div>
       </div>
-      <div className="registro-info">
-        <p><strong>Oficio:</strong> {registro.numOficio}</p>
-        <p><strong>Solicitante:</strong> {registro.nombreSolicitante || registro.enviadaPor}</p>
-        <p><strong>Fecha:</strong> {new Date(registro.fechaRecibo || registro.fechaRecepcion).toLocaleDateString()}</p>
-        {registro.analista && <p><strong>Analista:</strong> {registro.analista}</p>}
-      </div>
-      <div className="registro-actions">
-        {activeTab === 'porAsignar' && (
-          <div className="asignar-section">
-            <select 
-              value={selecciones[registro.id] || ""}
-              onChange={(e) => setSelecciones(prev => ({
-                ...prev,
-                [registro.id]: e.target.value
-              }))}
-            >
-              <option value="">Seleccionar Analista</option>
-              {analistas.map(analista => (
-                <option key={analista.usuarioId} value={analista.usuarioId}>
-                  {analista.nombre}
-                </option>
-              ))}
-            </select>
-            <button 
-              className="btn btn-primary"
-              disabled={!selecciones[registro.id]} 
-              onClick={() => asignarAnalista(registro.id, registro.tipo, selecciones[registro.id], registro)}
-            >
-              Confirmar
-            </button>
-          </div>
-        )}
-        {activeTab === 'porEvaluar' && (
-          <div className="evaluar-section">
-            <button 
-              className="btn btn-info" 
-              onClick={() => verDetalleRegistro(registro)} // 👈 Pasar registro completo
-            >
-              👁️ Ver
-            </button>
-            <button className="btn btn-success" onClick={() => aprobarRegistro(registro.id, registro.tipo)}>
-              ✅ Aprobar
-            </button>
-            <button className="btn btn-danger" onClick={() => {
-              const motivo = prompt('Motivo del rechazo:');
-              if (motivo) rechazarRegistro(registro.id, registro.tipo, motivo);
-            }}>
-              ❌ Rechazar
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+    );
+  };
 
-  // 📝 Vista mejorada para manejar ambos tipos de registros
   const renderDetalleRegistro = (r) => {
-    // Detectar si es registro de agua o ABA
     const esRegistroAgua = r.tipoRegistro === 'agua';
     
     return (
@@ -173,7 +206,7 @@ const EvaluadorDashboard = () => {
               <p><strong>Dirección:</strong> {r.direccion}</p>
               <p><strong>Condición Muestra:</strong> {r.condicionMuestra}</p>
               <p><strong>Fecha Toma:</strong> {r.fechaToma ? new Date(r.fechaToma).toLocaleDateString() : '-'}</p>
-              <p><strong>Fecha Recepción:</strong> {r.fechaRecepcion ? new Date(r.fechaRecepcion).toLocaleDateString() : '-'}</p>
+              <p><strong>Fecha Recepción:</strong> {r.fechaRecepción ? new Date(r.fechaRecepcion).toLocaleDateString() : '-'}</p>
             </>
           ) : (
             <>
@@ -225,7 +258,7 @@ const EvaluadorDashboard = () => {
           <p><strong>Otras Determinaciones:</strong> {r.otrasDeterminaciones || '-'}</p>
           <p><strong>Referencia:</strong> {r.referencia || '-'}</p>
           
-          {esRegistroAgua && (
+           {esRegistroAgua && (
             <>
               <p><strong>Temperatura Ambiente:</strong> {r.temperaturaAmbiente || '-'}</p>
               <p><strong>Fecha Reporte:</strong> {r.fechaReporte ? new Date(r.fechaReporte).toLocaleDateString() : '-'}</p>
@@ -247,7 +280,8 @@ const EvaluadorDashboard = () => {
           <p><strong>Esterilidad Comercial:</strong> {r.resEsterilidadComercial || '-'}</p>
           <p><strong>Listeria Monocytogenes:</strong> {r.resListeriaMonocytogenes || '-'}</p>
         </div>
-      <div className="detalle-section">
+        
+        <div className="detalle-section">
           <h3>📌 Otros</h3>
           <p><strong>Metodología Referencia:</strong> {r.metodologiaReferencia || '-'}</p>
           <p><strong>Equipos:</strong> {r.equipos || '-'}</p>
@@ -282,41 +316,74 @@ const EvaluadorDashboard = () => {
         !showUsuarios ? (
           <>
             <div className="evaluador-tabs">
-              <button className={`tab-btn ${activeTab === 'porAsignar' ? 'active' : ''}`} onClick={() => setActiveTab('porAsignar')}>
-                📋 Por Asignar ({registros.porAsignar.length})
+              <button 
+                className={`tab-btn ${activeTab === 'porAsignar' ? 'active' : ''}`} 
+                onClick={() => setActiveTab('porAsignar')}
+              >
+                📋 Por Asignar ({registros.porAsignar?.length || 0})
               </button>
-              <button className={`tab-btn ${activeTab === 'enProceso' ? 'active' : ''}`} onClick={() => setActiveTab('enProceso')}>
-                ⏳ En Proceso ({registros.enProceso.length})
+              <button 
+                className={`tab-btn ${activeTab === 'enProceso' ? 'active' : ''}`} 
+                onClick={() => setActiveTab('enProceso')}
+              >
+                ⏳ En Proceso ({registros.enProceso?.length || 0})
               </button>
-              <button className={`tab-btn ${activeTab === 'porEvaluar' ? 'active' : ''}`} onClick={() => setActiveTab('porEvaluar')}>
-                ✅ Por Evaluar ({registros.porEvaluar.length})
+              <button 
+                className={`tab-btn ${activeTab === 'porEvaluar' ? 'active' : ''}`} 
+                onClick={() => setActiveTab('porEvaluar')}
+              >
+                ✅ Por Evaluar ({registros.porEvaluar?.length || 0})
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'rechazados' ? 'active' : ''} tab-rechazados`} 
+                onClick={() => setActiveTab('rechazados')}
+              >
+                ❌ Rechazados ({registros.rechazados?.length || 0})
               </button>
             </div>
+            
             <div className="tab-content">
               {activeTab === 'porAsignar' && (
                 <div className="seccion-registros">
                   <h3>Registros Por Asignar</h3>
                   <div className="registros-grid">
-                    {registros.porAsignar.map(r => renderRegistroCard(r, r.tipo))}
-                    {registros.porAsignar.length === 0 && <p>No hay registros por asignar</p>}
+                    {(registros.porAsignar || []).map(r => renderRegistroCard(r, r.tipo))}
+                    {(!registros.porAsignar || registros.porAsignar.length === 0) && <p>No hay registros por asignar</p>}
                   </div>
                 </div>
               )}
+              
               {activeTab === 'enProceso' && (
                 <div className="seccion-registros">
                   <h3>Registros En Proceso</h3>
                   <div className="registros-grid">
-                    {registros.enProceso.map(r => renderRegistroCard(r, r.tipo))}
-                    {registros.enProceso.length === 0 && <p>No hay registros en proceso</p>}
+                    {(registros.enProceso || []).map(r => renderRegistroCard(r, r.tipo))}
+                    {(!registros.enProceso || registros.enProceso.length === 0) && <p>No hay registros en proceso</p>}
                   </div>
                 </div>
               )}
+              
               {activeTab === 'porEvaluar' && (
                 <div className="seccion-registros">
                   <h3>Registros Por Evaluar</h3>
                   <div className="registros-grid">
-                    {registros.porEvaluar.map(r => renderRegistroCard(r, r.tipo))}
-                    {registros.porEvaluar.length === 0 && <p>No hay registros por evaluar</p>}
+                    {(registros.porEvaluar || []).map(r => renderRegistroCard(r, r.tipo))}
+                    {(!registros.porEvaluar || registros.porEvaluar.length === 0) && <p>No hay registros por evaluar</p>}
+                  </div>
+                </div>
+              )}
+              
+              {activeTab === 'rechazados' && (
+                <div className="seccion-registros">
+                  <h3 className="titulo-rechazados">🔴 Registros Rechazados</h3>
+                  <p className="info-rechazados">
+                    Estos registros han sido devueltos al analista para correcciones.
+                  </p>
+                  <div className="registros-grid">
+                    {(registros.rechazados || []).map(r => renderRegistroCard(r, r.tipo))}
+                    {(!registros.rechazados || registros.rechazados.length === 0) && (
+                      <p>No hay registros rechazados</p>
+                    )}
                   </div>
                 </div>
               )}
