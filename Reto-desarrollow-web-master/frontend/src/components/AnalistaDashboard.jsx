@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { analistaService } from '../services/analistaService';
 import FormularioAnalisisAgua from './FormularioAnalisisAgua';
+import FormularioAnalisisAba from './FormularioAnalisisAba';
 
 const AnalistaDashboard = () => {
   const { user, logout } = useAuth();
@@ -73,10 +74,12 @@ const AnalistaDashboard = () => {
 
   if (loading) return <div className="loading">Cargando registros asignados...</div>;
 
-  // ✅ si hay registro en análisis, mostramos el formulario en vez de la lista
+  // ✅ si hay registro en análisis, mostramos el formulario correcto según el tipo
   if (registroEnAnalisis) {
+    const FormularioComponent = registroEnAnalisis.tipo === 'agua' ? FormularioAnalisisAgua : FormularioAnalisisAba;
+    
     return (
-      <FormularioAnalisisAgua 
+      <FormularioComponent 
         registro={registroEnAnalisis}
         onVolver={() => setRegistroEnAnalisis(null)}
         onFinalizar={() => {

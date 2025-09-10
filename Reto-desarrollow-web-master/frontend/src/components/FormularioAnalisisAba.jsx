@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { analistaService } from '../services/analistaService';
-import '../styles/FormularioAnalisisAgua.css';  // 👈 Archivo CSS con estilos mejorados
+import '../styles/FormularioAnalisisAgua.css';
 
-const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
+const FormularioAnalisisAba = ({ registro, onVolver, onFinalizar }) => {
   const [formData, setFormData] = useState({
     // Físico-químico   
     acidez: '', cloroResidual: '', cenizas: '', cumarina: '', cloruro: '',
@@ -42,18 +42,14 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
       const analisisData = { 
         Id: registro.id,
         // Campos originales del registro (mantener estructura original)
-        RegionSalud: registro.regionSalud,
-        DptoArea: registro.dptoArea,
-        TomadaPor: registro.tomadaPor,
         NumOficio: registro.numOficio,
+        NombreSolicitante: registro.nombreSolicitante,
+        FechaRecibo: registro.fechaRecibo,
+        TipoMuestra: registro.tipoMuestra,
+        CondicionRecepcion: registro.condicionRecepcion,
         NumMuestra: registro.numMuestra,
-        EnviadaPor: registro.enviadaPor,
-        Muestra: registro.muestra,
-        Direccion: registro.direccion,
-        CondicionMuestra: registro.condicionMuestra,
-        MotivoSolicitud: registro.motivoSolicitud,
-        FechaToma: registro.fechaToma,
-        FechaRecepcion: registro.fechaRecepcion,
+        NumLote: registro.numLote,
+        FechaEntrega: registro.fechaEntrega,
         Color: registro.color,
         Olor: registro.olor,
         Sabor: registro.sabor,
@@ -85,8 +81,6 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
         TiempoCoccion: formData.tiempoCoccion || null,
         OtrasDeterminaciones: formData.otrasDeterminaciones || null,
         Referencia: formData.referencia || null,
-        TemperaturaAmbiente: formData.temperaturaAmbiente ? parseFloat(formData.temperaturaAmbiente) : null,
-        FechaReporte: formData.fechaReporte || null,
         
         // Microbiológicos
         ResMicroorganismosAerobios: formData.resMicroorganismosAerobios || null,
@@ -114,12 +108,12 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
         UsuIdEvaluador: registro.usuIdEvaluador
       };
       
-      console.log('Enviando datos al backend:', analisisData);
-      await analistaService.guardarAnalisisAgua(registro.id, analisisData);
+      console.log('Enviando datos ABA al backend:', analisisData);
+      await analistaService.guardarAnalisisAba(registro.id, analisisData);
       setMensaje('✅ Análisis guardado exitosamente');
       setTimeout(() => onFinalizar(), 1500);
     } catch (err) {
-      console.error('Error completo:', err);
+      console.error('Error completo ABA:', err);
       setMensaje(`❌ Error: ${err.message}`);
     } finally {
       setLoading(false);
@@ -158,7 +152,7 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
         <button className="btn btn-secondary btn-lg" onClick={onVolver}>
           ← Volver al Dashboard
         </button>
-        <h2 className="titulo-grande">🔬 Analizar Registro Agua #{registro.id}</h2>
+        <h2 className="titulo-grande">🥘 Analizar Registro ABA #{registro.id}</h2>
       </div>
 
       {mensaje && <div className="alert">{mensaje}</div>}
@@ -231,4 +225,4 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
   );
 };
 
-export default FormularioAnalisisAgua;
+export default FormularioAnalisisAba;

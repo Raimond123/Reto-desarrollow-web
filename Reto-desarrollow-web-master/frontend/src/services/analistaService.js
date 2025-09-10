@@ -4,16 +4,16 @@ export const analistaService = {
   // Obtener registros asignados al analista
   async obtenerRegistrosAsignados(analistaId) {
     try {
-      console.log('🔍 Llamando endpoints con analistaId:', analistaId);
+      console.log(' Llamando endpoints con analistaId:', analistaId);
       
       const [aguaResponse, abaResponse] = await Promise.all([
-        fetch(`${API_BASE_URL}/registroagua/analista/${analistaId}`, {
+        fetch(`${API_BASE_URL}/RegistroAgua/analista/${analistaId}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
           }
         }),
-        fetch(`${API_BASE_URL}/registroaba/analista/${analistaId}`, {
+        fetch(`${API_BASE_URL}/RegistroAba/analista/${analistaId}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
@@ -34,7 +34,7 @@ export const analistaService = {
   // Guardar análisis de AGUA
   async guardarAnalisisAgua(registroId, analisisData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/registroagua/${registroId}`, {
+      const response = await fetch(`${API_BASE_URL}/RegistroAgua/${registroId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -61,7 +61,7 @@ export const analistaService = {
   // Guardar análisis de ABA (si también lo necesitas)
   async guardarAnalisisAba(registroId, analisisData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/registroaba/${registroId}`, {
+      const response = await fetch(`${API_BASE_URL}/RegistroAba/${registroId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -85,7 +85,7 @@ export const analistaService = {
   // Marcar registro como completado (estado a "Por Evaluar")
   async completarRegistro(registroId, tipoRegistro) {
     try {
-      const endpoint = tipoRegistro === 'agua' ? 'registroagua' : 'registroaba';
+      const endpoint = tipoRegistro === 'agua' ? 'RegistroAgua' : 'RegistroAba';
       const response = await fetch(`${API_BASE_URL}/${endpoint}/${registroId}/completar`, {
         method: 'PUT',
         headers: {
