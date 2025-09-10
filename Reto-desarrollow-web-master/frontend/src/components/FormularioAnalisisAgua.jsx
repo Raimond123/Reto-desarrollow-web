@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { analistaService } from '../services/analistaService';
-import '../styles/FormularioAnalisisAgua.css';  // 👈 Archivo CSS con estilos mejorados
+import '../styles/FormularioAnalisisAgua.css';  // estilos personalizados
 
 const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
   const [formData, setFormData] = useState({
-    // Físico-químico   
+    // Físico-químico (solo los que el analista llena)
     acidez: '', cloroResidual: '', cenizas: '', cumarina: '', cloruro: '',
     densidad: '', dureza: '', extractoSeco: '', fecula: '',
     gradoAlcoholico: '', humedad: '', indiceRefaccion: '', indiceAcidez: '',
@@ -21,8 +21,23 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
     observaciones: '', aptoConsumo: false
   });
 
+  const [registroCompleto, setRegistroCompleto] = useState(registro); // aquí guardamos el registro con organolépticos completos
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState('');
+
+  // 🔹 Al montar, traer el registro completo
+  useEffect(() => {
+    const fetchRegistro = async () => {
+      try {
+        const res = await fetch(`http://localhost:7051/api/RegistroAgua/${registro.id}`);
+        const data = await res.json();
+        setRegistroCompleto(data);  // ahora tenemos Color, Olor, etc
+      } catch (error) {
+        console.error("Error al cargar registro por id:", error);
+      }
+    };
+    fetchRegistro();
+  }, [registro]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -38,29 +53,32 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
     setMensaje('');
 
     try {
+      // Usar registroCompleto con organolépticos
       const analisisData = { 
-        Id: registro.id,
-        RegionSalud: registro.regionSalud,
-        DptoArea: registro.dptoArea,
-        TomadaPor: registro.tomadaPor,
-        NumOficio: registro.numOficio,
-        NumMuestra: registro.numMuestra,
-        EnviadaPor: registro.enviadaPor,
-        Muestra: registro.muestra,
-        Direccion: registro.direccion,
-        CondicionMuestra: registro.condicionMuestra,
-        MotivoSolicitud: registro.motivoSolicitud,
-        FechaToma: registro.fechaToma,
-        FechaRecepcion: registro.fechaRecepcion,
-        Color: registro.color,
-        Olor: registro.olor,
-        Sabor: registro.sabor,
-        Aspecto: registro.aspecto,
-        Textura: registro.textura,
-        PesoNeto: registro.pesoNeto,
-        FechaVencimiento: registro.fechaVencimiento,
+        Id: registroCompleto.id,
+        RegionSalud: registroCompleto.regionSalud,
+        DptoArea: registroCompleto.dptoArea,
+        TomadaPor: registroCompleto.tomadaPor,
+        NumOficio: registroCompleto.numOficio,
+        NumMuestra: registroCompleto.numMuestra,
+        EnviadaPor: registroCompleto.enviadaPor,
+        Muestra: registroCompleto.muestra,
+        Direccion: registroCompleto.direccion,
+        CondicionMuestra: registroCompleto.condicionMuestra,
+        MotivoSolicitud: registroCompleto.motivoSolicitud,
+        FechaToma: registroCompleto.fechaToma,
+        FechaRecepcion: registroCompleto.fechaRecepcion,
+
+        // 👇 Organolépticos del backend (solo lectura)
+        Color: registroCompleto.color,
+        Olor: registroCompleto.olor,
+        Sabor: registroCompleto.sabor,
+        Aspecto: registroCompleto.aspecto,
+        Textura: registroCompleto.textura,
+        PesoNeto: registroCompleto.pesoNeto,
+        FechaVencimiento: registroCompleto.fechaVencimiento,
         
-        // Campos fisicoquímicos
+        // Fisicoquímicos
         Acidez: formData.acidez ? parseFloat(formData.acidez) : null,
         CloroResidual: formData.cloroResidual ? parseFloat(formData.cloroResidual) : null,
         Cenizas: formData.cenizas ? parseFloat(formData.cenizas) : null,
@@ -105,9 +123,9 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
         AptoConsumo: formData.aptoConsumo,
         Estado: 'Por Evaluar',
         
-        UsuIdRegistro: registro.usuIdRegistro,
-        UsuIdAnalista: registro.usuIdAnalista,
-        UsuIdEvaluador: registro.usuIdEvaluador
+        UsuIdRegistro: registroCompleto.usuIdRegistro,
+        UsuIdAnalista: registroCompleto.usuIdAnalista,
+        UsuIdEvaluador: registroCompleto.usuIdEvaluador
       };
       
       console.log('Enviando datos al backend:', analisisData);
@@ -122,7 +140,7 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
     }
   };
 
-  // 🔹 Nuevo renderInput con referencia
+  // Render inputs reutilizable
   const renderInput = (label, type, name, step = null, referencia = null) => (
     <div className="form-group-lg">
       <label>{label}</label>
@@ -164,8 +182,21 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
       {mensaje && <div className="alert">{mensaje}</div>}
 
       <form onSubmit={handleSubmit} className="registro-form">
+
+        {/* 👅 Características Organolépticas (solo lectura) */}
+        <div className="form-section">
+          <h3 className="subtitulo">Características Organolépticas (Registro base)</h3>
+          <div className="form-grid">
+            <p><strong>Color:</strong> {registroCompleto.color}</p>
+            <p><strong>Olor:</strong> {registroCompleto.olor}</p>
+            <p><strong>Sabor:</strong> {registroCompleto.sabor}</p>
+            <p><strong>Aspecto:</strong> {registroCompleto.aspecto}</p>
+            <p><strong>Textura:</strong> {registroCompleto.textura}</p>
+            <p><strong>Peso Neto:</strong> {registroCompleto.pesoNeto}</p>
+          </div>
+        </div>
         
-        {/* Fisicoquímicos */}
+        {/* ⚗️ Fisicoquímicos */}
         <div className="form-section">
           <h3 className="subtitulo">Parámetros Fisicoquímicos</h3>
           <div className="form-grid">
@@ -176,8 +207,7 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
             {renderInput("Sólidos Totales", "number", "solidosTotales", "0.01", "Máx. 1000 mg/L (ideal ≤ 500 mg/L)")}
             {renderInput("Dureza", "text", "dureza", null, "Máx. 500 mg/L (recomendado <200)")}
             {renderInput("Temperatura Ambiente", "number", "temperaturaAmbiente", "0.01", "Ideal: 15 - 25 °C")}
-
-            {/* Otros campos sin referencia específica */}
+            {/* Otros */}
             {renderInput("Cenizas", "number", "cenizas", "0.01")}
             {renderInput("Cumarina", "text", "cumarina")}
             {renderInput("Densidad", "number", "densidad", "0.001")}
@@ -198,7 +228,7 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
           </div>
         </div>
 
-        {/* Microbiológicos */}
+        {/* 🦠 Microbiológicos */}
         <div className="form-section">
           <h3 className="subtitulo">Parámetros Microbiológicos</h3>
           <div className="form-grid">
@@ -224,6 +254,7 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
           </div>
         </div>
 
+        {/* Botón */}
         <div className="form-actions">
           <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
             {loading ? 'Guardando...' : 'Guardar Análisis'}

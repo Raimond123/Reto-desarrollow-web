@@ -63,37 +63,38 @@ const FormularioRegistroAgua = ({ onVolver }) => {
       }
 
       // Construimos el objeto a enviar al backend
-      const registroData = {
-        regionSalud: formData.regionSalud,
-        dptoArea: formData.dptoArea,
-        tomadaPor: formData.tomadaPor,
-        numOficio: formData.numOficio,
-        numMuestra: formData.numMuestra,
-        enviadaPor: formData.enviadaPor,
-        muestra: formData.muestra,
-        direccion: formData.direccion,
-        condicionMuestra: formData.condicionMuestra,
-        motivoSolicitud: formData.motivoSolicitud,
-        fechaToma: formData.fechaToma || null,
-        fechaRecepcion: formData.fechaRecepcion || null,
-        cloroResidual: formData.cloroResidual ? parseFloat(formData.cloroResidual) : null,
-        temperaturaAmbiente: formData.temperaturaAmbiente ? parseFloat(formData.temperaturaAmbiente) : null,
-        fechaReporte: formData.fechaReporte || null,
-        microoroAerobios: formData.microoroAerobios,
-        pseudomonasSPP: formData.pseudomonasSPP,
-        metodologiaReferencia: formData.metodologiaReferencia,
-        observaciones: formData.observaciones,
-        tipoCopa: formData.tipoCopa,
-        estado: 'Por Asignar',
-        usuIdRegistro: userId,
-        // Nuevos campos organolépticos
-        color: formData.color,
-        olor: formData.olor,
-        sabor: formData.sabor,
-        aspecto: formData.aspecto,
-        textura: formData.textura,
-        pesoNeto: formData.pesoNeto
-      };
+     const registroData = {
+      RegionSalud: formData.regionSalud,
+      DptoArea: formData.dptoArea,
+      TomadaPor: formData.tomadaPor,
+      NumOficio: formData.numOficio,
+      NumMuestra: formData.numMuestra,
+      EnviadaPor: formData.enviadaPor,
+      Muestra: formData.muestra,
+      Direccion: formData.direccion,
+      CondicionMuestra: formData.condicionMuestra,
+      MotivoSolicitud: formData.motivoSolicitud,
+      FechaToma: formData.fechaToma || null,
+      FechaRecepcion: formData.fechaRecepcion || null,
+      CloroResidual: formData.cloroResidual ? parseFloat(formData.cloroResidual) : null,
+      TemperaturaAmbiente: formData.temperaturaAmbiente ? parseFloat(formData.temperaturaAmbiente) : null,
+      FechaReporte: formData.fechaReporte || null,
+      MicrooroAerobios: formData.microoroAerobios,
+      PseudomonasSPP: formData.pseudomonasSPP,
+      MetodologiaReferencia: formData.metodologiaReferencia,
+      Observaciones: formData.observaciones,
+      TipoCopa: formData.tipoCopa,
+      Estado: 'Por Asignar',
+      UsuIdRegistro: userId,
+
+      // ✅ Organolépticos en PascalCase
+      Color: formData.color,
+      Olor: formData.olor,
+      Sabor: formData.sabor,
+      Aspecto: formData.aspecto,
+      Textura: formData.textura,
+      PesoNeto: formData.pesoNeto ? parseFloat(formData.pesoNeto) : null
+    };
 
       await registroService.guardarRegistroAgua(registroData);
       setSuccess('Registro de agua guardado exitosamente y enviado al evaluador');

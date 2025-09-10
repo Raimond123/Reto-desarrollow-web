@@ -98,7 +98,7 @@ namespace reto_api.Controllers
 
         // GET: api/RegistroAgua/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<RegistroAgua>> GetRegistro(int id)
+        public async Task<ActionResult<object>> GetRegistro(int id)
         {
             var registro = await _context.RegistrosAgua
                 .Include(r => r.UsuarioRegistro)
@@ -109,7 +109,80 @@ namespace reto_api.Controllers
             if (registro == null)
                 return NotFound();
 
-            return registro;
+            return new
+            {
+                registro.Id,
+                registro.RegionSalud,
+                registro.DptoArea,
+                registro.TomadaPor,
+                registro.NumOficio,
+                registro.NumMuestra,
+                registro.EnviadaPor,
+                registro.Muestra,
+                registro.Direccion,
+                registro.CondicionMuestra,
+                registro.MotivoSolicitud,
+                registro.FechaToma,
+                registro.FechaRecepcion,
+
+                // 👇 Organo
+                registro.Color,
+                registro.Olor,
+                registro.Sabor,
+                registro.Aspecto,
+                registro.Textura,
+                registro.PesoNeto,
+                registro.FechaVencimiento,
+
+                // 👇 Fisicoquímicos
+                registro.Acidez,
+                registro.CloroResidual,
+                registro.Cenizas,
+                registro.Cumarina,
+                registro.Cloruro,
+                registro.Densidad,
+                registro.Dureza,
+                registro.ExtractoSeco,
+                registro.Fecula,
+                registro.GradoAlcoholico,
+                registro.Humedad,
+                registro.IndiceRefaccion,
+                registro.IndiceAcidez,
+                registro.IndiceRancidez,
+                registro.MateriaGrasaCualit,
+                registro.MateriaGrasaCuantit,
+                registro.PH,
+                registro.PruebaEber,
+                registro.SolidosTotales,
+                registro.TiempoCoccion,
+                registro.OtrasDeterminaciones,
+                registro.Referencia,
+                registro.TemperaturaAmbiente,
+                registro.FechaReporte,
+
+                // 👇 Microbiológicos
+                registro.ResMicroorganismosAerobios,
+                registro.ResRecuentoColiformes,
+                registro.ResColiformesTotales,
+                registro.ResPseudomonasSpp,
+                registro.ResEColi,
+                registro.ResSalmonellaSpp,
+                registro.ResEstafilococosAureus,
+                registro.ResHongos,
+                registro.ResLevaduras,
+                registro.ResEsterilidadComercial,
+                registro.ResListeriaMonocytogenes,
+
+                registro.MetodologiaReferencia,
+                registro.Equipos,
+                registro.Observaciones,
+                registro.AptoConsumo,
+                registro.Estado,
+                registro.UsuIdRegistro,
+                registro.UsuIdAnalista,
+                registro.UsuIdEvaluador,
+                Analista = registro.UsuarioAnalista != null ? registro.UsuarioAnalista.usu_nombre : null
+            };
         }
 
         // POST: api/RegistroAgua
@@ -255,6 +328,16 @@ namespace reto_api.Controllers
                 r.MotivoSolicitud,
                 r.FechaToma,
                 r.FechaRecepcion,
+
+                // 👇 Agregar organolépticos
+                r.Color,
+                r.Olor,
+                r.Sabor,
+                r.Aspecto,
+                r.Textura,
+                r.PesoNeto,
+                r.FechaVencimiento,
+
                 r.CloroResidual,
                 r.Estado,
                 r.Observaciones,

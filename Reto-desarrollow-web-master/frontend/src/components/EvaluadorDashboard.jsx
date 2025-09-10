@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { evaluadorService } from '../services/evaluadorService';
 import UsuariosCRUD from './UsuariosCRUD';
-import '../styles/EvaluadorDashboard.css'; // 👈 estilos personalizados
+import '../styles/EvaluadorDashboard.css';
 
 const EvaluadorDashboard = () => {
   const { user, logout } = useAuth();
@@ -68,6 +68,17 @@ const EvaluadorDashboard = () => {
     }
   };
 
+  // 🔹 NUEVO: traer registro completo
+  const verDetalleRegistro = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:7051/api/RegistroAgua/${id}`);
+      const data = await res.json();
+      setRegistroSeleccionado(data); // ahora contiene Color, Olor, etc.
+    } catch (err) {
+      setError("Error al cargar el detalle del registro: " + err.message);
+    }
+  };
+
   const renderRegistroCard = (registro, tipo) => (
     <div key={`${tipo}-${registro.id}`} className="registro-card">
       <div className="registro-header">
@@ -108,7 +119,7 @@ const EvaluadorDashboard = () => {
         )}
         {activeTab === 'porEvaluar' && (
           <div className="evaluar-section">
-            <button className="btn btn-info" onClick={() => setRegistroSeleccionado(registro)}>
+            <button className="btn btn-info" onClick={() => verDetalleRegistro(registro.id)}>
               👁️ Ver
             </button>
             <button className="btn btn-success" onClick={() => aprobarRegistro(registro.id, tipo)}>
@@ -148,6 +159,7 @@ const EvaluadorDashboard = () => {
         <p><strong>Sabor:</strong> {r.sabor}</p>
         <p><strong>Aspecto:</strong> {r.aspecto}</p>
         <p><strong>Textura:</strong> {r.textura}</p>
+        <p><strong>Peso Neto:</strong> {r.pesoNeto}</p>
       </div>
 
       <div className="detalle-section">
