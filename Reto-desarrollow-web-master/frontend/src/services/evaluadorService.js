@@ -101,49 +101,42 @@ export const evaluadorService = {
     }
   },
   // Aprobar registro
-  async aprobarRegistro(registroId, tipoRegistro) {
-    try {
-      const endpoint = tipoRegistro === 'agua' ? 'registroagua' : 'registroaba';
-      const response  = await fetch(`${API_BASE_URL}/${endpoint}/${registroId}/aprobar`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      });
+  aprobarRegistro: async (registroId, tipoRegistro) => {
+    const endpoint = tipoRegistro === 'agua' ? 'RegistroAgua' : 'RegistroAba';
+    const response = await fetch(`${API_BASE_URL}/${endpoint}/${registroId}/aprobar`, {
+      method: 'PUT'
+    });
 
-      if (!response.ok) {
-        throw new Error('Error al aprobar registro');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Error al aprobar registro:', error);
-      throw error;
+    if (!response.ok) {
+      throw new Error('Error al aprobar registro');
     }
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : { success: true };
   },
 
   // Rechazar registro
-  async rechazarRegistro(registroId, tipoRegistro, motivo) {
-    try {
-      const endpoint = tipoRegistro === 'agua' ? 'registroagua' : 'registroaba';
-      const response = await fetch(`${API_BASE_URL}/${endpoint}/${registroId}/rechazar`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ motivo })
-      });
+  rechazarRegistro: async (registroId, tipoRegistro, motivo) => {
+    const endpoint = tipoRegistro === 'agua' ? 'RegistroAgua' : 'RegistroAba';
+    const response = await fetch(`${API_BASE_URL}/${endpoint}/${registroId}/rechazar`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ motivo })
+    });
 
-      if (!response.ok) {
-        throw new Error('Error al rechazar registro');
-      }
+    if (!response.ok) {
+      throw new Error('Error al rechazar registro');
+    }
 
+    // Verificar si hay contenido antes de intentar parsear JSON
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
       return await response.json();
-    } catch (error) {
-      console.error('Error al rechazar registro:', error);
-      throw error;
+    } else {
+      // Si no hay contenido JSON, devolver un objeto vacío o null
+      return { success: true };
     }
   }
 };
