@@ -263,15 +263,23 @@ const FormularioRegistroAgua = ({ onVolver }) => {
 
             <div className="form-group">
               <label htmlFor="condicionMuestra">Condición de la Muestra:</label>
-              <input
-                type="text"
+              <select
                 id="condicionMuestra"
                 name="condicionMuestra"
                 value={formData.condicionMuestra}
                 onChange={handleChange}
                 className="form-control"
-              />
+                required
+              >
+                <option value="">-- Seleccione una opción --</option>
+                <option value="Buena">Buena</option>
+                <option value="Turbia">Turbia</option>
+                <option value="Con sedimentos">Con sedimentos</option>
+                <option value="Mal olor">Mal olor</option>
+                <option value="Color anormal">Color anormal</option>
+              </select>
             </div>
+
 
             <div className="form-group">
               <label htmlFor="motivoSolicitud">Motivo de Solicitud:</label>
@@ -376,14 +384,17 @@ const FormularioRegistroAgua = ({ onVolver }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="pesoNeto">Peso Neto:</label>
+              <label htmlFor="pesoNeto">Peso Neto (litros):</label>
               <input
-                type="text"
+                type="number"
                 id="pesoNeto"
                 name="pesoNeto"
                 value={formData.pesoNeto}
                 onChange={handleChange}
                 className="form-control"
+                min="0"
+                step="0.01" 
+                placeholder=""
               />
             </div>
           </div>

@@ -204,14 +204,21 @@ const FormularioRegistroAba = ({ onVolver }) => {
 
             <div className="form-group">
               <label htmlFor="condicionRecepcion">Condición de Recepción:</label>
-              <input
-                type="text"
+              <select
                 id="condicionRecepcion"
                 name="condicionRecepcion"
                 value={formData.condicionRecepcion}
                 onChange={handleChange}
                 className="form-control"
-              />
+                required
+              >
+                <option value="">-- Seleccionar --</option>
+                <option value="En buen estado">En buen estado</option>
+                <option value="Con daño visible">Con daño visible</option>
+                <option value="Caducado">Caducado</option>
+                <option value="Envase deteriorado">Envase deteriorado</option>
+                <option value="Otro">Otro</option>
+              </select>
             </div>
 
             <div className="form-group">
@@ -330,15 +337,17 @@ const FormularioRegistroAba = ({ onVolver }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="pesoNeto">Peso Neto:</label>
+              <label htmlFor="pesoNeto">Peso Neto (libras):</label>
               <input
                 type="number"
-                step="0.01"
                 id="pesoNeto"
                 name="pesoNeto"
                 value={formData.pesoNeto}
                 onChange={handleChange}
                 className="form-control"
+                min="0"
+                step="0.01" 
+                placeholder=""
               />
             </div>
           </div>

@@ -38,10 +38,8 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
     setMensaje('');
 
     try {
-      // Convertir campos del formulario a PascalCase para el backend
       const analisisData = { 
         Id: registro.id,
-        // Campos originales del registro (mantener estructura original)
         RegionSalud: registro.regionSalud,
         DptoArea: registro.dptoArea,
         TomadaPor: registro.tomadaPor,
@@ -62,7 +60,7 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
         PesoNeto: registro.pesoNeto,
         FechaVencimiento: registro.fechaVencimiento,
         
-        // Campos de análisis del formulario (convertir a PascalCase)
+        // Campos fisicoquímicos
         Acidez: formData.acidez ? parseFloat(formData.acidez) : null,
         CloroResidual: formData.cloroResidual ? parseFloat(formData.cloroResidual) : null,
         Cenizas: formData.cenizas ? parseFloat(formData.cenizas) : null,
@@ -103,12 +101,10 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
         MetodologiaReferencia: formData.metodologiaReferencia || null,
         Equipos: formData.equipos || null,
         
-        // Estado y observaciones
         Observaciones: formData.observaciones || null,
         AptoConsumo: formData.aptoConsumo,
         Estado: 'Por Evaluar',
         
-        // IDs de usuario (mantener originales)
         UsuIdRegistro: registro.usuIdRegistro,
         UsuIdAnalista: registro.usuIdAnalista,
         UsuIdEvaluador: registro.usuIdEvaluador
@@ -126,7 +122,8 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
     }
   };
 
-  const renderInput = (label, type, name, step = null) => (
+  // 🔹 Nuevo renderInput con referencia
+  const renderInput = (label, type, name, step = null, referencia = null) => (
     <div className="form-group-lg">
       <label>{label}</label>
       <input
@@ -137,6 +134,9 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
         value={formData[name]}
         onChange={handleChange}
       />
+      {referencia && (
+        <small className="text-muted">Referencia: {referencia}</small>
+      )}
     </div>
   );
 
@@ -169,13 +169,18 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
         <div className="form-section">
           <h3 className="subtitulo">Parámetros Fisicoquímicos</h3>
           <div className="form-grid">
-            {renderInput("Acidez", "number", "acidez", "0.01")}
-            {renderInput("Cloro Residual", "number", "cloroResidual", "0.01")}
+            {renderInput("pH", "number", "ph", "0.01", "Aceptable: 6.5 - 8.5")}
+            {renderInput("Cloro Residual", "number", "cloroResidual", "0.01", "Aceptable: 0.2 - 1.5 mg/L")}
+            {renderInput("Acidez", "number", "acidez", "0.01", "Máx. ~20 mg/L como CaCO₃")}
+            {renderInput("Cloruro", "number", "cloruro", "0.01", "Máx. 250 mg/L")}
+            {renderInput("Sólidos Totales", "number", "solidosTotales", "0.01", "Máx. 1000 mg/L (ideal ≤ 500 mg/L)")}
+            {renderInput("Dureza", "text", "dureza", null, "Máx. 500 mg/L (recomendado <200)")}
+            {renderInput("Temperatura Ambiente", "number", "temperaturaAmbiente", "0.01", "Ideal: 15 - 25 °C")}
+
+            {/* Otros campos sin referencia específica */}
             {renderInput("Cenizas", "number", "cenizas", "0.01")}
             {renderInput("Cumarina", "text", "cumarina")}
-            {renderInput("Cloruro", "number", "cloruro", "0.01")}
             {renderInput("Densidad", "number", "densidad", "0.001")}
-            {renderInput("Dureza", "text", "dureza")}
             {renderInput("Extracto Seco", "text", "extractoSeco")}
             {renderInput("Fécula", "text", "fecula")}
             {renderInput("Grado Alcohólico", "number", "gradoAlcoholico", "0.01")}
@@ -185,13 +190,10 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
             {renderInput("Índice Rancidez", "number", "indiceRancidez", "0.01")}
             {renderInput("Materia Grasa Cualitativa", "text", "materiaGrasaCualit")}
             {renderInput("Materia Grasa Cuantitativa", "number", "materiaGrasaCuantit", "0.01")}
-            {renderInput("pH", "number", "ph", "0.01")}
             {renderInput("Prueba de Eber", "text", "pruebaEber")}
-            {renderInput("Sólidos Totales", "number", "solidosTotales", "0.01")}
             {renderInput("Tiempo de Cocción", "text", "tiempoCoccion")}
             {renderTextarea("Otras Determinaciones", "otrasDeterminaciones")}
             {renderInput("Referencia", "text", "referencia")}
-            {renderInput("Temperatura Ambiente", "number", "temperaturaAmbiente", "0.01")}
             {renderInput("Fecha Reporte", "date", "fechaReporte")}
           </div>
         </div>
@@ -200,20 +202,21 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
         <div className="form-section">
           <h3 className="subtitulo">Parámetros Microbiológicos</h3>
           <div className="form-grid">
-            {renderInput("Microorganismos Aerobios", "text", "resMicroorganismosAerobios")}
-            {renderInput("Recuento Coliformes", "text", "resRecuentoColiformes")}
-            {renderInput("Coliformes Totales", "text", "resColiformesTotales")}
-            {renderInput("Pseudomonas SPP", "text", "resPseudomonasSpp")}
-            {renderInput("E.Coli", "text", "resEColi")}
-            {renderInput("Salmonella SPP", "text", "resSalmonellaSpp")}
-            {renderInput("Estafilococos Aureus", "text", "resEstafilococosAureus")}
-            {renderInput("Hongos", "text", "resHongos")}
-            {renderInput("Levaduras", "text", "resLevaduras")}
-            {renderInput("Esterilidad Comercial", "text", "resEsterilidadComercial")}
-            {renderInput("Listeria Monocytogenes", "text", "resListeriaMonocytogenes")}
+            {renderInput("Microorganismos Aerobios", "text", "resMicroorganismosAerobios", null, "≤ 100 UFC/mL")}
+            {renderInput("Recuento Coliformes", "text", "resRecuentoColiformes", null, "Aceptable: 0 UFC/100 mL")}
+            {renderInput("Coliformes Totales", "text", "resColiformesTotales", null, "Aceptable: 0 UFC/100 mL")}
+            {renderInput("E. Coli", "text", "resEColi", null, "Aceptable: 0 UFC/100 mL")}
+            {renderInput("Pseudomonas SPP", "text", "resPseudomonasSpp", null, "Aceptable: 0 UFC/100 mL")}
+            {renderInput("Salmonella SPP", "text", "resSalmonellaSpp", null, "Ausente en 100 mL")}
+            {renderInput("Estafilococos Aureus", "text", "resEstafilococosAureus", null, "Ausente en 100 mL")}
+            {renderInput("Hongos", "text", "resHongos", null, "Ausencia esperada")}
+            {renderInput("Levaduras", "text", "resLevaduras", null, "Ausencia esperada")}
+            {renderInput("Esterilidad Comercial", "text", "resEsterilidadComercial", null, "Debe cumplirse (sin crecimiento)")}
+            {renderInput("Listeria Monocytogenes", "text", "resListeriaMonocytogenes", null, "Ausente en 100 mL")}
             {renderInput("Metodología Referencia", "text", "metodologiaReferencia")}
             {renderInput("Equipos", "text", "equipos")}
             {renderTextarea("Observaciones", "observaciones")}
+
             <div className="form-check-lg">
               <input type="checkbox" name="aptoConsumo" checked={formData.aptoConsumo} onChange={handleChange}/>
               <label>Apto para Consumo</label>
