@@ -207,7 +207,7 @@ namespace reto_api.Controllers
                 .Include(r => r.UsuarioRegistro)
                 .Include(r => r.UsuarioAnalista)
                 .Include(r => r.UsuarioEvaluador)
-                .Where(r => r.UsuIdAnalista == analistaId && r.Estado == "En Proceso")
+                .Where(r => r.UsuIdAnalista == analistaId && (r.Estado == "En Proceso" || r.Estado == "Rechazado"))
                 .ToListAsync();
 
             return registros.Select(r => new {

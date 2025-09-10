@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { analistaService } from '../services/analistaService';
 import '../styles/FormularioAnalisisAgua.css';
 
@@ -21,8 +21,74 @@ const FormularioAnalisisAba = ({ registro, onVolver, onFinalizar }) => {
     observaciones: '', aptoConsumo: false
   });
 
+  const [registroCompleto, setRegistroCompleto] = useState(registro);
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState('');
+  const [esRegistroRechazado, setEsRegistroRechazado] = useState(false);
+  const [motivoRechazo, setMotivoRechazo] = useState('');
+
+  // 🔹 Al montar, traer el registro completo y verificar si fue rechazado
+  useEffect(() => {
+    const fetchRegistro = async () => {
+      try {
+        const res = await fetch(`https://localhost:7051/api/RegistroAba/${registro.id}`);
+        const data = await res.json();
+        setRegistroCompleto(data);
+        
+        // Verificar si el registro fue rechazado
+        if (data.estado === 'Rechazado' || (data.estado === 'En Proceso' && data.observaciones)) {
+          setEsRegistroRechazado(true);
+          setMotivoRechazo(data.observaciones || '');
+          
+          // Cargar los datos previos del análisis si existen
+          setFormData({
+            acidez: data.acidez || '',
+            cloroResidual: data.cloroResidual || '',
+            cenizas: data.cenizas || '',
+            cumarina: data.cumarina || '',
+            cloruro: data.cloruro || '',
+            densidad: data.densidad || '',
+            dureza: data.dureza || '',
+            extractoSeco: data.extractoSeco || '',
+            fecula: data.fecula || '',
+            gradoAlcoholico: data.gradoAlcoholico || '',
+            humedad: data.humedad || '',
+            indiceRefaccion: data.indiceRefaccion || '',
+            indiceAcidez: data.indiceAcidez || '',
+            indiceRancidez: data.indiceRancidez || '',
+            materiaGrasaCualit: data.materiaGrasaCualit || '',
+            materiaGrasaCuantit: data.materiaGrasaCuantit || '',
+            ph: data.ph || '',
+            pruebaEber: data.pruebaEber || '',
+            solidosTotales: data.solidosTotales || '',
+            tiempoCoccion: data.tiempoCoccion || '',
+            otrasDeterminaciones: data.otrasDeterminaciones || '',
+            referencia: data.referencia || '',
+            temperaturaAmbiente: data.temperaturaAmbiente || '',
+            fechaReporte: data.fechaReporte ? data.fechaReporte.split('T')[0] : '',
+            resMicroorganismosAerobios: data.resMicroorganismosAerobios || '',
+            resRecuentoColiformes: data.resRecuentoColiformes || '',
+            resColiformesTotales: data.resColiformesTotales || '',
+            resPseudomonasSpp: data.resPseudomonasSpp || '',
+            resEColi: data.resEColi || '',
+            resSalmonellaSpp: data.resSalmonellaSpp || '',
+            resEstafilococosAureus: data.resEstafilococosAureus || '',
+            resHongos: data.resHongos || '',
+            resLevaduras: data.resLevaduras || '',
+            resEsterilidadComercial: data.resEsterilidadComercial || '',
+            resListeriaMonocytogenes: data.resListeriaMonocytogenes || '',
+            metodologiaReferencia: data.metodologiaReferencia || '',
+            equipos: data.equipos || '',
+            observaciones: '', // Dejar vacío para nuevas observaciones del analista
+            aptoConsumo: data.aptoConsumo || false
+          });
+        }
+      } catch (error) {
+        console.error("Error al cargar registro ABA por id:", error);
+      }
+    };
+    fetchRegistro();
+  }, [registro]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -39,22 +105,24 @@ const FormularioAnalisisAba = ({ registro, onVolver, onFinalizar }) => {
 
     try {
       const analisisData = { 
-        Id: registro.id,
-        NumOficio: registro.numOficio,
-        NombreSolicitante: registro.nombreSolicitante,
-        FechaRecibo: registro.fechaRecibo,
-        TipoMuestra: registro.tipoMuestra,
-        CondicionRecepcion: registro.condicionRecepcion,
-        NumMuestra: registro.numMuestra,
-        NumLote: registro.numLote,
-        FechaEntrega: registro.fechaEntrega,
-        Color: registro.color,
-        Olor: registro.olor,
-        Sabor: registro.sabor,
-        Aspecto: registro.aspecto,
-        Textura: registro.textura,
-        PesoNeto: registro.pesoNeto,
-        FechaVencimiento: registro.fechaVencimiento,
+        Id: registroCompleto.id,
+        NumOficio: registroCompleto.numOficio,
+        NombreSolicitante: registroCompleto.nombreSolicitante,
+        FechaRecibo: registroCompleto.fechaRecibo,
+        TipoMuestra: registroCompleto.tipoMuestra,
+        CondicionRecepcion: registroCompleto.condicionRecepcion,
+        NumMuestra: registroCompleto.numMuestra,
+        NumLote: registroCompleto.numLote,
+        FechaEntrega: registroCompleto.fechaEntrega,
+
+        // Organolépticos del backend
+        Color: registroCompleto.color,
+        Olor: registroCompleto.olor,
+        Sabor: registroCompleto.sabor,
+        Aspecto: registroCompleto.aspecto,
+        Textura: registroCompleto.textura,
+        PesoNeto: registroCompleto.pesoNeto,
+        FechaVencimiento: registroCompleto.fechaVencimiento,
         
         // Fisicoquímicos
         Acidez: formData.acidez ? parseFloat(formData.acidez) : null,
@@ -79,6 +147,8 @@ const FormularioAnalisisAba = ({ registro, onVolver, onFinalizar }) => {
         TiempoCoccion: formData.tiempoCoccion || null,
         OtrasDeterminaciones: formData.otrasDeterminaciones || null,
         Referencia: formData.referencia || null,
+        TemperaturaAmbiente: formData.temperaturaAmbiente ? parseFloat(formData.temperaturaAmbiente) : null,
+        FechaReporte: formData.fechaReporte || null,
         
         // Microbiológicos
         ResMicroorganismosAerobios: formData.resMicroorganismosAerobios || null,
@@ -95,13 +165,16 @@ const FormularioAnalisisAba = ({ registro, onVolver, onFinalizar }) => {
         MetodologiaReferencia: formData.metodologiaReferencia || null,
         Equipos: formData.equipos || null,
         
-        Observaciones: formData.observaciones || null,
+        // Si es un registro rechazado, concatenar observaciones
+        Observaciones: esRegistroRechazado && formData.observaciones 
+          ? `CORRECCIONES REALIZADAS: ${formData.observaciones}` 
+          : formData.observaciones || null,
         AptoConsumo: formData.aptoConsumo,
         Estado: 'Por Evaluar',
         
-        UsuIdRegistro: registro.usuIdRegistro,
-        UsuIdAnalista: registro.usuIdAnalista,
-        UsuIdEvaluador: registro.usuIdEvaluador
+        UsuIdRegistro: registroCompleto.usuIdRegistro,
+        UsuIdAnalista: registroCompleto.usuIdAnalista,
+        UsuIdEvaluador: registroCompleto.usuIdEvaluador
       };
       
       console.log('Enviando datos ABA al backend:', analisisData);
@@ -134,7 +207,7 @@ const FormularioAnalisisAba = ({ registro, onVolver, onFinalizar }) => {
     </div>
   );
 
-  const renderTextarea = (label, name) => (
+  const renderTextarea = (label, name, placeholder = '') => (
     <div className="form-group-lg">
       <label>{label}</label>
       <textarea
@@ -142,6 +215,7 @@ const FormularioAnalisisAba = ({ registro, onVolver, onFinalizar }) => {
         name={name}
         value={formData[name]}
         onChange={handleChange}
+        placeholder={placeholder}
       />
     </div>
   );
@@ -152,10 +226,22 @@ const FormularioAnalisisAba = ({ registro, onVolver, onFinalizar }) => {
         <button className="btn btn-secondary btn-lg" onClick={onVolver}>
           ← Volver al Dashboard
         </button>
-        <h2 className="titulo-grande">🥘 Analizar Registro ABA #{registro.id}</h2>
+        <h2 className="titulo-grande">
+          🥘 Analizar Registro ABA #{registro.id}
+          {esRegistroRechazado && <span className="badge-rechazado"> - RECHAZADO</span>}
+        </h2>
       </div>
 
       {mensaje && <div className="alert">{mensaje}</div>}
+
+      {/* Mostrar motivo de rechazo si existe */}
+      {esRegistroRechazado && motivoRechazo && (
+        <div className="alert alert-warning motivo-rechazo">
+          <h4>📝 Motivo del rechazo del evaluador:</h4>
+          <p>{motivoRechazo}</p>
+          <small>Por favor, corrija los aspectos mencionados y vuelva a enviar el análisis.</small>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="registro-form">
         
@@ -170,6 +256,7 @@ const FormularioAnalisisAba = ({ registro, onVolver, onFinalizar }) => {
             {renderInput("Cumarina", "text", "cumarina", null, "Permitido solo trazas (aditivo restringido)")}
             {renderInput("Cloruro", "number", "cloruro", "0.01", "En bebidas ≤ 250 mg/L")}
             {renderInput("Densidad", "number", "densidad", "0.001", "Vinos: 0.990 – 1.010 g/mL, depende alcohol")}
+            {renderInput("Dureza", "text", "dureza", null, "Máx. 500 mg/L (recomendado <200)")}
             {renderInput("Extracto Seco", "text", "extractoSeco", null, "Depende del producto: vino > 18 g/L")}
             {renderInput("Fécula", "text", "fecula", null, "Alimentos: presente en harinas, no en bebidas")}
             {renderInput("Grado Alcohólico", "number", "gradoAlcoholico", "0.01", "Vinos 8–15%, cervezas 3–8%, spirits 20–50%")}
@@ -182,9 +269,9 @@ const FormularioAnalisisAba = ({ registro, onVolver, onFinalizar }) => {
             {renderInput("Prueba de Eber", "text", "pruebaEber", null, "Usada en vinos para aldehídos")}
             {renderInput("Sólidos Totales", "number", "solidosTotales", "0.01", "Jugos naturales 8–12°Brix")}
             {renderInput("Tiempo de Cocción", "text", "tiempoCoccion", null, "Depende del alimento")}
+            {renderInput("Temperatura Ambiente", "number", "temperaturaAmbiente", "0.01", "Ideal conservación: 15–25 °C")}
             {renderTextarea("Otras Determinaciones", "otrasDeterminaciones")}
             {renderInput("Referencia", "text", "referencia")}
-            {renderInput("Temperatura Ambiente", "number", "temperaturaAmbiente", "0.01", "Ideal conservación: 15–25 °C")}
             {renderInput("Fecha Reporte", "date", "fechaReporte")}
           </div>
         </div>
@@ -206,7 +293,24 @@ const FormularioAnalisisAba = ({ registro, onVolver, onFinalizar }) => {
             {renderInput("Listeria Monocytogenes", "text", "resListeriaMonocytogenes", null, "Ausente en 25 g")}
             {renderInput("Metodología Referencia", "text", "metodologiaReferencia")}
             {renderInput("Equipos", "text", "equipos")}
-            {renderTextarea("Observaciones", "observaciones")}
+            
+            <div className="form-group-lg">
+              <label>
+                Observaciones 
+                {esRegistroRechazado && (
+                  <span className="text-info"> (Indique las correcciones realizadas)</span>
+                )}
+              </label>
+              <textarea
+                className="form-control-lg"
+                name="observaciones"
+                value={formData.observaciones}
+                onChange={handleChange}
+                placeholder={esRegistroRechazado ? "Por favor, indique qué correcciones realizó respecto al rechazo anterior..." : "Observaciones adicionales del análisis..."}
+                rows={4}
+              />
+            </div>
+
             <div className="form-check-lg">
               <input type="checkbox" name="aptoConsumo" checked={formData.aptoConsumo} onChange={handleChange}/>
               <label>Apto para Consumo</label>
@@ -216,7 +320,7 @@ const FormularioAnalisisAba = ({ registro, onVolver, onFinalizar }) => {
 
         <div className="form-actions">
           <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
-            {loading ? 'Guardando...' : 'Guardar Análisis'}
+            {loading ? 'Guardando...' : esRegistroRechazado ? 'Reenviar Análisis Corregido' : 'Guardar Análisis'}
           </button>
         </div>
       </form>
