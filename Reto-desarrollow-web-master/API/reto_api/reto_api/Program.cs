@@ -13,10 +13,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Registrar servicio PDF
+// Registrar servicios
 builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
-// Configurar CORS para permitir conexiones desde el frontend
+// Registrar servicio de limpieza automática de tokens
+builder.Services.AddHostedService<TokenCleanupService>();
+
+// Configurar CORS para permitir conexiones desde el frontend y página externa
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -26,7 +30,19 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowCredentials();
     });
+    
+    // Política más permisiva para endpoints públicos de tokens
+    options.AddPolicy("AllowPublicAccess", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
+
+// Configurar logging para tokens
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
 
 var app = builder.Build();
 
@@ -40,7 +56,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Usar CORS antes de autorización
-app.UseCors("AllowFrontend");
+app.UseCors("AllowPublicAccess");
 
 app.UseAuthorization();
 

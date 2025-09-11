@@ -20,6 +20,8 @@ const EvaluadorDashboard = () => {
   const [error, setError] = useState('');
   const [showUsuarios, setShowUsuarios] = useState(false);
   const [registroSeleccionado, setRegistroSeleccionado] = useState(null);
+  const [tokenGenerado, setTokenGenerado] = useState(null);
+  const [showTokenModal, setShowTokenModal] = useState(false);
 
   useEffect(() => {
     cargarDatos();
@@ -130,6 +132,34 @@ const EvaluadorDashboard = () => {
     }
   };
 
+  const generarToken = async (registroId, tipoRegistro) => {
+    try {
+      const response = await fetch(`https://localhost:7051/api/Pdf/generar-con-token/${registroId}/${tipoRegistro}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al generar token');
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setTokenGenerado(data);
+        setShowTokenModal(true);
+      } else {
+        throw new Error(data.message || 'Error desconocido');
+      }
+      
+    } catch (err) {
+      setError("Error al generar token: " + err.message);
+    }
+  };
+
   const renderRegistroCard = (registro, tipo) => {
     const esRechazado = registro.estado === 'Rechazado';
     
@@ -188,14 +218,22 @@ const EvaluadorDashboard = () => {
                 👁️ Ver
               </button>
               
-              {/* Botón Ver PDF solo para registros aprobados */}
+              {/* Botones para registros aprobados */}
               {activeTab === 'aprobados' && (
-                <button 
-                  className="btn btn-success" 
-                  onClick={() => descargarPdf(registro.id, registro.tipo)}
-                >
-                  📄 Ver PDF
-                </button>
+                <>
+                  <button 
+                    className="btn btn-success" 
+                    onClick={() => descargarPdf(registro.id, registro.tipo)}
+                  >
+                    📄 Ver PDF
+                  </button>
+                  <button 
+                    className="btn btn-warning" 
+                    onClick={() => generarToken(registro.id, registro.tipo)}
+                  >
+                    🔑 Generar Token
+                  </button>
+                </>
               )}
               
               {/* Solo mostrar botones de aprobar/rechazar si no está ya rechazado o aprobado */}
@@ -352,6 +390,62 @@ const EvaluadorDashboard = () => {
       </div>
 
       {error && <div className="error">{error}</div>}
+
+      {/* Modal para mostrar token generado */}
+      {showTokenModal && tokenGenerado && (
+        <div className="modal-overlay" onClick={() => setShowTokenModal(false)}>
+          <div className="modal-content token-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>🔑 Token Generado Exitosamente</h3>
+              <button className="modal-close" onClick={() => setShowTokenModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="token-info">
+                <p><strong>Registro:</strong> #{tokenGenerado.registroId} ({tokenGenerado.tipoRegistro.toUpperCase()})</p>
+                <div className="token-display">
+                  <label>Token para el Cliente:</label>
+                  <div className="token-value">
+                    <input 
+                      type="text" 
+                      value={tokenGenerado.token} 
+                      readOnly 
+                      className="token-input"
+                      onClick={(e) => e.target.select()}
+                    />
+                    <button 
+                      className="btn btn-copy"
+                      onClick={() => {
+                        navigator.clipboard.writeText(tokenGenerado.token);
+                        alert('Token copiado al portapapeles');
+                      }}
+                    >
+                      📋 Copiar
+                    </button>
+                  </div>
+                </div>
+                <div className="token-instructions">
+                  <h4>📋 Instrucciones para el Cliente:</h4>
+                  <ol>
+                    <li>Proporcione este token al cliente que envió la muestra</li>
+                    <li>El cliente puede usar este token en la página de consulta externa</li>
+                    <li>Con el token podrá ver los resultados y descargar el PDF</li>
+                    <li>El token expira en 90 días</li>
+                  </ol>
+                </div>
+                <div className="token-links">
+                  <p><strong>Página de consulta:</strong></p>
+                  <code>pagina-externa-tokens/index.html</code>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowTokenModal(false)}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {registroSeleccionado ? (
         renderDetalleRegistro(registroSeleccionado)

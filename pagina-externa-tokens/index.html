@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Resultados - DIGEMAPS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .consultation-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        .header-section {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header-section h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 300;
+        }
+        
+        .header-section p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .form-section {
+            padding: 40px 30px;
+        }
+        
+        .token-input-group {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .token-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .token-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .btn-consult {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-consult:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn-consult:disabled {
+            background: #bdc3c7;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .result-section {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            display: none;
+        }
+        
+        .result-success {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+        }
+        
+        .result-error {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        
+        .result-info {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .info-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .info-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .btn-download {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-download:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner-border {
+            color: #3498db;
+        }
+        
+        .footer-info {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header-section {
+                padding: 30px 20px;
+            }
+            
+            .header-section h1 {
+                font-size: 1.8rem;
+            }
+            
+            .form-section {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="consultation-card">
+            <!-- Header -->
+            <div class="header-section">
+                <h1><i class="fas fa-flask me-3"></i>DIGEMAPS</h1>
+                <p>Consulta de Resultados de Análisis</p>
+            </div>
+            
+            <!-- Form Section -->
+            <div class="form-section">
+                <div class="mb-4">
+                    <h3 class="text-center mb-3">Ingrese su Token de Consulta</h3>
+                    <p class="text-muted text-center">
+                        Ingrese el token que recibió junto con su muestra para consultar los resultados del análisis.
+                    </p>
+                </div>
+                
+                <form id="tokenForm">
+                    <div class="token-input-group">
+                        <input 
+                            type="text" 
+                            id="tokenInput" 
+                            class="token-input" 
+                            placeholder="Ej: A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6"
+                            maxlength="32"
+                            required
+                        >
+                    </div>
+                    
+                    <button type="submit" class="btn-consult" id="consultBtn">
+                        <i class="fas fa-search me-2"></i>Consultar Resultados
+                    </button>
+                </form>
+                
+                <!-- Loading Spinner -->
+                <div class="loading-spinner" id="loadingSpinner">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-2">Consultando resultados...</p>
+                </div>
+                
+                <!-- Result Section -->
+                <div class="result-section" id="resultSection">
+                    <div id="resultContent"></div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="footer-info">
+                <p class="mb-0">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    Laboratorio de Evaluación de Productos de Consumo Humano (LEPCH) - DIGEMAPS
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

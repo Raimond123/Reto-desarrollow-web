@@ -8,6 +8,7 @@ namespace reto_api.Services
     public interface IPdfService
     {
         Task<byte[]> GenerarPdfRegistroAsync(int registroId, string tipoRegistro);
+        Task<string> GenerarPdfConTokenAsync(int registroId, string tipoRegistro);
     }
 
     public class PdfService : IPdfService
@@ -38,6 +39,35 @@ namespace reto_api.Services
 
             document.Close();
             return memoryStream.ToArray();
+        }
+
+        public async Task<string> GenerarPdfConTokenAsync(int registroId, string tipoRegistro)
+        {
+            // Verificar que el registro existe y está aprobado
+            var datosRegistro = await ObtenerDatosRegistroAsync(registroId, tipoRegistro);
+            if (datosRegistro == null)
+                throw new ArgumentException("Registro no encontrado o no aprobado");
+
+            // Verificar si ya existe un token activo para este registro
+            var tokenExistente = await _context.TokensAcceso
+                .FirstOrDefaultAsync(t => t.RegistroId == registroId && 
+                                        t.TipoRegistro == tipoRegistro.ToLower() && 
+                                        t.Activo && 
+                                        t.FechaExpiracion > DateTime.Now);
+
+            if (tokenExistente != null)
+            {
+                return tokenExistente.Token;
+            }
+
+            // Crear nuevo token
+            var nuevoToken = TokenAcceso.CrearNuevo(registroId, tipoRegistro);
+            
+            // Guardar en base de datos
+            _context.TokensAcceso.Add(nuevoToken);
+            await _context.SaveChangesAsync();
+
+            return nuevoToken.Token;
         }
 
         private async Task<dynamic?> ObtenerDatosRegistroAsync(int registroId, string tipoRegistro)

@@ -12,6 +12,7 @@ namespace reto_api.Models
         public DbSet<RegistroAgua> RegistrosAgua { get; set; }
         public DbSet<RegistroAba> RegistrosAba { get; set; }
         public DbSet<ParametroReferencia> ParametrosReferencia { get; set; }
+        public DbSet<TokenAcceso> TokensAcceso { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
