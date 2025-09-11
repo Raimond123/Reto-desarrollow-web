@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using reto_api.Models;
+using reto_api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,9 @@ builder.Services.AddSwaggerGen();
 // Configurar Entity Framework
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Registrar servicio PDF
+builder.Services.AddScoped<IPdfService, PdfService>();
 
 // Configurar CORS para permitir conexiones desde el frontend
 builder.Services.AddCors(options =>

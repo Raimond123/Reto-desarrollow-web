@@ -100,6 +100,36 @@ const EvaluadorDashboard = () => {
     }
   };
 
+  const descargarPdf = async (registroId, tipoRegistro) => {
+    try {
+      const response = await fetch(`https://localhost:7051/api/Pdf/registro/${registroId}/${tipoRegistro}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al generar el PDF');
+      }
+
+      // Crear blob del PDF
+      const blob = await response.blob();
+      
+      // Crear URL temporal para el blob
+      const url = window.URL.createObjectURL(blob);
+      
+      // Abrir en nueva ventana para visualizar
+      window.open(url, '_blank');
+      
+      // Limpiar URL después de un tiempo
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+      
+    } catch (err) {
+      setError("Error al generar PDF: " + err.message);
+    }
+  };
+
   const renderRegistroCard = (registro, tipo) => {
     const esRechazado = registro.estado === 'Rechazado';
     
@@ -157,6 +187,16 @@ const EvaluadorDashboard = () => {
               >
                 👁️ Ver
               </button>
+              
+              {/* Botón Ver PDF solo para registros aprobados */}
+              {activeTab === 'aprobados' && (
+                <button 
+                  className="btn btn-success" 
+                  onClick={() => descargarPdf(registro.id, registro.tipo)}
+                >
+                  📄 Ver PDF
+                </button>
+              )}
               
               {/* Solo mostrar botones de aprobar/rechazar si no está ya rechazado o aprobado */}
               {activeTab === 'porEvaluar' && (
