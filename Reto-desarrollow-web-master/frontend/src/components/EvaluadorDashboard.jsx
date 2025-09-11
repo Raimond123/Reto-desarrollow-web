@@ -11,7 +11,8 @@ const EvaluadorDashboard = () => {
     porAsignar: [],
     enProceso: [],
     porEvaluar: [],
-    rechazados: [] // ✅ Asegurarse de que esté inicializado
+    rechazados: [],
+    aprobados: [] // ✅ Agregar sección de aprobados
   });
   const [analistas, setAnalistas] = useState([]);
   const [selecciones, setSelecciones] = useState({});
@@ -37,7 +38,8 @@ const EvaluadorDashboard = () => {
         porAsignar: registrosData.porAsignar || [],
         enProceso: registrosData.enProceso || [],
         porEvaluar: registrosData.porEvaluar || [],
-        rechazados: registrosData.rechazados || []
+        rechazados: registrosData.rechazados || [],
+        aprobados: registrosData.aprobados || []
       });
       
       setAnalistas(analistasData);
@@ -48,7 +50,8 @@ const EvaluadorDashboard = () => {
         porAsignar: [],
         enProceso: [],
         porEvaluar: [],
-        rechazados: []
+        rechazados: [],
+        aprobados: []
       });
     } finally {
       setLoading(false);
@@ -146,7 +149,7 @@ const EvaluadorDashboard = () => {
             </div>
           )}
           
-          {(activeTab === 'porEvaluar' || activeTab === 'rechazados') && (
+          {(activeTab === 'porEvaluar' || activeTab === 'rechazados' || activeTab === 'aprobados') && (
             <div className="evaluar-section">
               <button 
                 className="btn btn-info" 
@@ -155,7 +158,7 @@ const EvaluadorDashboard = () => {
                 👁️ Ver
               </button>
               
-              {/* Solo mostrar botones de aprobar/rechazar si no está ya rechazado */}
+              {/* Solo mostrar botones de aprobar/rechazar si no está ya rechazado o aprobado */}
               {activeTab === 'porEvaluar' && (
                 <>
                   <button className="btn btn-success" onClick={() => aprobarRegistro(registro.id, registro.tipo)}>
@@ -340,6 +343,12 @@ const EvaluadorDashboard = () => {
               >
                 ❌ Rechazados ({registros.rechazados?.length || 0})
               </button>
+              <button 
+                className={`tab-btn ${activeTab === 'aprobados' ? 'active' : ''} tab-aprobados`} 
+                onClick={() => setActiveTab('aprobados')}
+              >
+                ✅ Aprobados ({registros.aprobados?.length || 0})
+              </button>
             </div>
             
             <div className="tab-content">
@@ -383,6 +392,21 @@ const EvaluadorDashboard = () => {
                     {(registros.rechazados || []).map(r => renderRegistroCard(r, r.tipo))}
                     {(!registros.rechazados || registros.rechazados.length === 0) && (
                       <p>No hay registros rechazados</p>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {activeTab === 'aprobados' && (
+                <div className="seccion-registros">
+                  <h3 className="titulo-aprobados">✅ Registros Aprobados</h3>
+                  <p className="info-aprobados">
+                    Estos registros han sido aprobados y completados exitosamente.
+                  </p>
+                  <div className="registros-grid">
+                    {(registros.aprobados || []).map(r => renderRegistroCard(r, r.tipo))}
+                    {(!registros.aprobados || registros.aprobados.length === 0) && (
+                      <p>No hay registros aprobados</p>
                     )}
                   </div>
                 </div>

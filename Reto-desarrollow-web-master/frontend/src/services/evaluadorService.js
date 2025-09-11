@@ -28,12 +28,13 @@ export const evaluadorService = {
         ...abaData.map(r => ({ ...r, tipo: 'aba' }))
       ];
 
-      // 🔹 Agrupar también los rechazados
+      // 🔹 Agrupar también los rechazados y aprobados
       return {
         porAsignar: todosRegistros.filter(r => r.estado === 'Por Asignar'),
         enProceso: todosRegistros.filter(r => r.estado === 'En Proceso'),
         porEvaluar: todosRegistros.filter(r => r.estado === 'Por Evaluar'),
-        rechazados: todosRegistros.filter(r => r.estado === 'Rechazado') // 👈 añadido
+        rechazados: todosRegistros.filter(r => r.estado === 'Rechazado'),
+        aprobados: todosRegistros.filter(r => r.estado === 'Aprobado') // 👈 añadido
       };
     } catch (error) {
       console.error('Error al obtener registros:', error);
