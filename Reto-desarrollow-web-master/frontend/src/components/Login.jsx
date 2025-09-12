@@ -45,12 +45,16 @@ const Login = () => {
   };
 
   return (
-    <div className="container">
+    <div className="container login-page">
       <div className="login-container">
         <div className="login-card">
           <div className="login-header">
-            <h1>Sistema de Gestión</h1>
-            <p>Acceso al Sistema</p>
+            <div className="logo-container">
+              <div className="logo-icon">🧪</div>
+              <h1>DIGEMAPS</h1>
+              <p className="subtitle">Dirección General de Medicamentos, Alimentos y Productos Sanitarios</p>
+            </div>
+            <p className="login-description">Sistema de Gestión de Análisis de Laboratorio</p>
           </div>
 
           {error && <div className="error">{error}</div>}
@@ -94,7 +98,27 @@ const Login = () => {
           </form>
 
           <div className="login-info">
-            <p><strong>Roles disponibles:</strong> Evaluador, Analista, Registro</p>
+            <div className="roles-info">
+              <h4>🔬 Roles del Sistema</h4>
+              <div className="roles-grid">
+                <div className="role-item">
+                  <span className="role-icon">👨‍🔬</span>
+                  <span>Evaluador</span>
+                </div>
+                <div className="role-item">
+                  <span className="role-icon">🧪</span>
+                  <span>Analista</span>
+                </div>
+                <div className="role-item">
+                  <span className="role-icon">📋</span>
+                  <span>Registro</span>
+                </div>
+              </div>
+            </div>
+            <div className="lab-info">
+              <p>🏢 Laboratorio Certificado ISO 17025</p>
+              <p>🔒 Acceso Seguro y Confidencial</p>
+            </div>
           </div>
         </div>
       </div>

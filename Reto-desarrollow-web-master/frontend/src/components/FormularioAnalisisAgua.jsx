@@ -225,8 +225,9 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
   );
 
   return (
-    <div className="formulario-container">
-      <div className="formulario-header">
+    <div className="analisis-wrapper">
+      <div className="formulario-container">
+        <div className="formulario-header">
         <button className="btn btn-secondary btn-lg" onClick={onVolver}>
           ← Volver al Dashboard
         </button>
@@ -334,6 +335,7 @@ const FormularioAnalisisAgua = ({ registro, onVolver, onFinalizar }) => {
           </button>
         </div>
       </form>
+      </div>
     </div>
   );
 };

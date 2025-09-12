@@ -385,7 +385,9 @@ const EvaluadorDashboard = () => {
           <button className={`btn ${showUsuarios ? 'btn-secondary' : 'btn-info'}`} onClick={() => setShowUsuarios(!showUsuarios)}>
             {showUsuarios ? '📊 Ver Dashboard' : '👥 Gestionar Usuarios'}
           </button>
-          <button className="btn btn-danger" onClick={logout}>Cerrar Sesión</button>
+          <button className="btn btn-danger" onClick={logout}>
+            Cerrar Sesión
+          </button>
         </div>
       </div>
 

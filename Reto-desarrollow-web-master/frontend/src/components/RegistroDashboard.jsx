@@ -22,33 +22,73 @@ const RegistroDashboard = () => {
   const renderSeleccionFormularios = () => (
     <div className="formularios-selection">
       <div className="selection-header">
-        <h2>Seleccionar Tipo de Registro</h2>
-        <p>Elige el formulario que necesitas completar:</p>
+        <div className="selection-title">
+          <h2>📋 Seleccionar Tipo de Registro</h2>
+          <p>Elige el tipo de análisis que necesitas registrar en el sistema</p>
+        </div>
+        <div className="selection-stats">
+          <div className="stat-item">
+            <span className="stat-number">2</span>
+            <span className="stat-label">Tipos Disponibles</span>
+          </div>
+        </div>
       </div>
       
       <div className="formularios-grid">
-        <div className="formulario-card" onClick={() => seleccionarFormulario('agua')}>
-          <div className="card-icon">💧</div>
-          <h3>Registro de Agua</h3>
-          <p>Análisis y registro de muestras de agua</p>
-          <ul>
-            <li>Análisis microbiológico</li>
-            <li>Parámetros físico-químicos</li>
-            <li>Control de calidad</li>
-          </ul>
-          <button className="btn btn-primary">Seleccionar</button>
+        <div className="formulario-card agua-card" onClick={() => seleccionarFormulario('agua')}>
+          <div className="card-header">
+            <div className="card-icon agua-icon">💧</div>
+            <div className="card-badge">Análisis Hídrico</div>
+          </div>
+          <div className="card-content">
+            <h3>Registro de Agua</h3>
+            <p>Análisis completo de muestras hídricas para consumo y uso industrial</p>
+            <div className="features-list">
+              <div className="feature-item">
+                <span className="feature-icon">🦠</span>
+                <span>Análisis microbiológico</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">⚗️</span>
+                <span>Parámetros físico-químicos</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">✅</span>
+                <span>Control de calidad</span>
+              </div>
+            </div>
+          </div>
+          <div className="card-footer">
+            <button className="btn btn-primary card-btn">Iniciar Registro</button>
+          </div>
         </div>
 
-        <div className="formulario-card" onClick={() => seleccionarFormulario('aba')}>
-          <div className="card-icon">🍽️</div>
-          <h3>Registro ABA</h3>
-          <p>Análisis de alimentos, bebidas y afines</p>
-          <ul>
-            <li>Análisis nutricional</li>
-            <li>Control de calidad</li>
-            <li>Parámetros organolépticos</li>
-          </ul>
-          <button className="btn btn-primary">Seleccionar</button>
+        <div className="formulario-card aba-card" onClick={() => seleccionarFormulario('aba')}>
+          <div className="card-header">
+            <div className="card-icon aba-icon">🍽️</div>
+            <div className="card-badge">Análisis Alimentario</div>
+          </div>
+          <div className="card-content">
+            <h3>Registro ABA</h3>
+            <p>Análisis integral de alimentos, bebidas y productos afines</p>
+            <div className="features-list">
+              <div className="feature-item">
+                <span className="feature-icon">🥗</span>
+                <span>Análisis nutricional</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">🔍</span>
+                <span>Control de calidad</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">👃</span>
+                <span>Parámetros organolépticos</span>
+              </div>
+            </div>
+          </div>
+          <div className="card-footer">
+            <button className="btn btn-primary card-btn">Iniciar Registro</button>
+          </div>
         </div>
       </div>
     </div>
@@ -68,9 +108,12 @@ const RegistroDashboard = () => {
   return (
     <div className="container">
       <div className="app-header">
-        <div>
-          <h1>Panel de Registro</h1>
-          <p>Sistema de Registro y Documentación</p>
+        <div className="header-brand">
+          <div className="brand-icon">🧪</div>
+          <div className="brand-text">
+            <h1>DIGEMAPS</h1>
+            <p>Panel de Registro - Sistema de Gestión de Análisis</p>
+          </div>
         </div>
         <div className="user-info">
           <span>Bienvenido, {user?.nombre}</span>

@@ -82,14 +82,24 @@
   }
 }
 
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px 25px;
   border-bottom: 1px solid #e9ecef;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
   border-radius: 12px 12px 0 0;
 }
 
@@ -334,7 +344,7 @@
 }
 
 .estado-badge.Por\ Asignar {
-  background-color: #ffc107;
+  background-color: #f8fafc;
 }
 
 .estado-badge.En\ Proceso {

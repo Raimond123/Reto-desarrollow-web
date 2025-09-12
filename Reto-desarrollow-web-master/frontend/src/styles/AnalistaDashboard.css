@@ -3,10 +3,9 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 2rem;
-  border-radius: 12px;
-  text-align: center;
+  border-radius: 15px;
   margin-bottom: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 .header h1 {
@@ -28,7 +27,7 @@
 }
 
 .stat-card {
-  background: white;
+  background: #f8fafc;
   border-radius: 8px;
   padding: 1.5rem;
   text-align: center;

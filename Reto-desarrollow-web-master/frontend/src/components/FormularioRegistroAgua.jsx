@@ -143,10 +143,23 @@ const FormularioRegistroAgua = ({ onVolver }) => {
   return (
     <div className="formulario-container">
       <div className="formulario-header">
-        <button className="btn btn-secondary" onClick={onVolver}>
-          ← Volver a Selección
-        </button>
-        <h2>📋 Formulario de Registro de Agua</h2>
+        <div className="header-left">
+          <button className="btn btn-back" onClick={onVolver}>
+            ← Volver a Selección
+          </button>
+        </div>
+        <div className="header-center">
+          <div className="form-title-container">
+            <div className="form-icon">💧</div>
+            <div className="form-title-text">
+              <h2>Formulario de Registro de Agua</h2>
+              <p>Análisis Hídrico - DIGEMAPS</p>
+            </div>
+          </div>
+        </div>
+        <div className="header-right">
+          <div className="form-badge agua-badge">Análisis Hídrico</div>
+        </div>
       </div>
 
       {error && <div className="error">{error}</div>}
@@ -155,8 +168,12 @@ const FormularioRegistroAgua = ({ onVolver }) => {
       <form onSubmit={handleSubmit} className="registro-form">
         
         {/* Información General */}
-        <div className="form-section">
-          <h3>Información General</h3>
+        <div className="form-section agua-section">
+          <div className="section-header">
+            <div className="section-icon">📊</div>
+            <h3>Información General</h3>
+            <div className="section-line"></div>
+          </div>
           <div className="form-grid">
             <div className="form-group">
               <label htmlFor="regionSalud">Región de Salud:</label>
@@ -235,8 +252,12 @@ const FormularioRegistroAgua = ({ onVolver }) => {
         </div>
 
         {/* Información de la Muestra */}
-        <div className="form-section">
-          <h3>Información de la Muestra</h3>
+        <div className="form-section agua-section">
+          <div className="section-header">
+            <div className="section-icon">🧪</div>
+            <h3>Información de la Muestra</h3>
+            <div className="section-line"></div>
+          </div>
           <div className="form-grid">
             <div className="form-group">
               <label htmlFor="muestra">Muestra:</label>
@@ -281,7 +302,6 @@ const FormularioRegistroAgua = ({ onVolver }) => {
               </select>
             </div>
 
-
             <div className="form-group">
               <label htmlFor="motivoSolicitud">Motivo de Solicitud:</label>
               <textarea
@@ -321,8 +341,12 @@ const FormularioRegistroAgua = ({ onVolver }) => {
         </div>
 
         {/* ✅ Características Organolépticas */}
-        <div className="form-section">
-          <h3>Características Organolépticas</h3>
+        <div className="form-section agua-section">
+          <div className="section-header">
+            <div className="section-icon">👃</div>
+            <h3>Características Organolépticas</h3>
+            <div className="section-line"></div>
+          </div>
           <div className="form-grid">
             <div className="form-group">
               <label htmlFor="color">Color:</label>
@@ -405,17 +429,26 @@ const FormularioRegistroAgua = ({ onVolver }) => {
         <div className="form-actions">
           <button 
             type="button" 
-            className="btn btn-secondary"
+            className="btn btn-cancel"
             onClick={onVolver}
           >
-            Cancelar
+            ❌ Cancelar
           </button>
           <button 
             type="submit" 
-            className="btn btn-primary"
+            className="btn btn-submit agua-submit"
             disabled={loading}
           >
-            {loading ? 'Guardando...' : 'Guardar y Enviar al Evaluador'}
+            {loading ? (
+              <>
+                <span className="loading-spinner"></span>
+                Guardando...
+              </>
+            ) : (
+              <>
+                💾 Guardar y Enviar al Evaluador
+              </>
+            )}
           </button>
         </div>
       </form>
